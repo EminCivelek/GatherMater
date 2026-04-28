@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94d7c18b55246aa43836d7a566a42bc0, type: 3}
+  m_Name: GoldBuildingConfig
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingConfig
+  buildingName: Gold Miners
+  icon: {fileID: -7520020149588888064, guid: 4189209dc5ebac542a8c0aaac9ca6038, type: 3}
+  resourceType: 2
+  tiers:
+  - produceRatePerMinute: 60
+    storageCap: 300
+    upgradeCost:
+    - resource: 2
+      amount: 100
+    - resource: 1
+      amount: 100
+  - produceRatePerMinute: 120
+    storageCap: 600
+    upgradeCost: []
