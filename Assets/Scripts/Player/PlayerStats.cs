@@ -120,6 +120,15 @@ public class PlayerStats : MonoBehaviour
         OnStatsChanged?.Invoke();
     }
 
+    public void LoseXPOnDeath()
+    {
+        if (IsMaxLevel) return;
+        int penalty = Mathf.RoundToInt(XPToNextLevel * 0.05f);
+        currentXP = currentXP >= penalty ? currentXP - penalty : 0;
+        OnStatsChanged?.Invoke();
+        SaveLocal();
+    }
+
     public void RestoreFullHP()
     {
         currentHP = maxHP;
@@ -137,6 +146,8 @@ public class PlayerStats : MonoBehaviour
         PlayerPrefs.SetString("PS_totalXP",     totalXpFarmed.ToString());
         PlayerPrefs.SetFloat("PS_maxHP",        maxHP);
         PlayerPrefs.SetFloat("PS_maxMP",        maxMP);
+        PlayerPrefs.SetFloat("PS_currentHP",    currentHP);
+        PlayerPrefs.SetFloat("PS_currentMP",    currentMP);
         PlayerPrefs.SetFloat("PS_attackDamage", attackDamage);
         PlayerPrefs.SetFloat("PS_attackSpeed",  attackSpeed);
         PlayerPrefs.SetFloat("PS_hpRegen",      hpRegen);
@@ -155,8 +166,8 @@ public class PlayerStats : MonoBehaviour
         attackSpeed  = PlayerPrefs.GetFloat("PS_attackSpeed",  1f);
         hpRegen      = PlayerPrefs.GetFloat("PS_hpRegen",      1f);
         mpRegen      = PlayerPrefs.GetFloat("PS_mpRegen",      1f);
-        currentHP    = maxHP;
-        currentMP    = maxMP;
+        currentHP    = PlayerPrefs.GetFloat("PS_currentHP",    maxHP);
+        currentMP    = PlayerPrefs.GetFloat("PS_currentMP",    maxMP);
     }
 
     // ── Cloud sync ───────────────────────────────────────────────────────
@@ -171,8 +182,8 @@ public class PlayerStats : MonoBehaviour
         attackSpeed   = spd;
         hpRegen       = hpRgn;
         mpRegen       = mpRgn;
-        currentHP     = maxHP;
-        currentMP     = maxMP;
+        currentHP     = Mathf.Min(currentHP, maxHP);
+        currentMP     = Mathf.Min(currentMP, maxMP);
         SaveLocal();
         OnStatsChanged?.Invoke();
     }

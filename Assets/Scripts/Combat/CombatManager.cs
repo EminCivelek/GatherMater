@@ -98,6 +98,7 @@ public class CombatManager : MonoBehaviour
             {
                 _fightActive = false;
                 LastXPGained = 0;
+                PlayerStats.Instance.LoseXPOnDeath();
                 OnCombatLog?.Invoke("You were defeated!");
                 OnCombatEnd?.Invoke();
                 yield break;

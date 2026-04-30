@@ -59,7 +59,7 @@ public class CombatSelectionUI : MonoBehaviour
             _mobButtons[_selectedMob] = SwapButton(prev, _selectedMob, mobButtonPrefab);
 
         _selectedMob = mob;
-        selectedMobLabel.text = $"{mob.mobName}  HP:{mob.maxHP}  ATK:{mob.attackDamage}  SPD:{mob.attackSpeed}/s  XP:{mob.xpReward}";
+        selectedMobLabel.text = $"{mob.mobName} \n HP:{mob.maxHP} \n ATK:{mob.attackDamage} \n SPD:{mob.attackSpeed}/s \n XP:{mob.xpReward}";
 
         // Defer the green swap one frame so the click event finishes before we destroy the button
         StartCoroutine(SwapToGreenNextFrame(mob));

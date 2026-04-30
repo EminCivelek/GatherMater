@@ -15,6 +15,6 @@ MonoBehaviour:
   mobName: Goblin
   mobSprite: {fileID: -3757547826733318397, guid: 2f85a1a3bd3e59d44a90b9686fa95b05, type: 3}
   maxHP: 200
-  attackDamage: 20
+  attackDamage: 15
   attackSpeed: 1.2
   xpReward: 50
