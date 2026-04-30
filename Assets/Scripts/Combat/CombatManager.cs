@@ -23,6 +23,7 @@ public class CombatManager : MonoBehaviour
 
     bool _fightActive;
     float _playerAttackTimer;
+    int _totalXPGained;
 
     void Awake()
     {
@@ -43,7 +44,8 @@ public class CombatManager : MonoBehaviour
             });
         }
 
-        _playerAttackTimer = 1f / PlayerStats.Instance.attackSpeed;
+        _playerAttackTimer = 1f / PlayerStats.Instance.CombinedAttackSpeed;
+        _totalXPGained = 0;
         _fightActive = true;
         StartCoroutine(CombatLoop());
     }
@@ -59,7 +61,7 @@ public class CombatManager : MonoBehaviour
             _playerAttackTimer -= dt;
             if (_playerAttackTimer <= 0f)
             {
-                _playerAttackTimer = 1f / PlayerStats.Instance.attackSpeed;
+                _playerAttackTimer = 1f / PlayerStats.Instance.CombinedAttackSpeed;
                 MobInstance target = Mobs.Find(m => m.IsAlive);
                 if (target != null)
                 {
@@ -68,7 +70,12 @@ public class CombatManager : MonoBehaviour
                     OnCombatLog?.Invoke($"You hit {target.Config.mobName} for {dmg:F0} dmg.");
 
                     if (!target.IsAlive)
-                        OnCombatLog?.Invoke($"{target.Config.mobName} died!");
+                    {
+                        int xp = target.Config.xpReward;
+                        _totalXPGained += xp;
+                        PlayerStats.Instance.GainXP(xp);
+                        OnCombatLog?.Invoke($"{target.Config.mobName} died! +{xp} XP");
+                    }
                 }
             }
 
@@ -99,11 +106,8 @@ public class CombatManager : MonoBehaviour
             if (Mobs.TrueForAll(m => !m.IsAlive))
             {
                 _fightActive = false;
-                int totalXP = 0;
-                foreach (var mob in Mobs) totalXP += mob.Config.xpReward;
-                LastXPGained = totalXP;
-                PlayerStats.Instance.GainXP(totalXP);
-                OnCombatLog?.Invoke($"Victory! Gained {totalXP} XP.");
+                LastXPGained = _totalXPGained;
+                OnCombatLog?.Invoke($"Victory! Total XP gained: {_totalXPGained}.");
                 OnCombatEnd?.Invoke();
             }
         }
@@ -111,5 +115,6 @@ public class CombatManager : MonoBehaviour
 
     public int LastXPGained { get; private set; }
 
-    public bool PlayerWon => _fightActive == false && PlayerStats.Instance.IsAlive;
+    public bool IsFighting => _fightActive;
+    public bool PlayerWon  => _fightActive == false && PlayerStats.Instance.IsAlive;
 }

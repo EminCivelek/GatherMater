@@ -97,7 +97,13 @@ public class EquipmentUI : MonoBehaviour
 
     public void Close() => panel.SetActive(false);
 
-    public void OnItemClicked(ItemInstance item)
+    public void OnItemClicked(ItemInstance item, RectTransform slotRect)
+    {
+        if (item?.data == null) return;
+        ItemInfoPanelUI.Instance?.Open(item);
+    }
+
+    public void EquipItem(ItemInstance item)
     {
         var eq  = Equipment.Instance;
         var inv = ItemInventory.Instance;
@@ -148,7 +154,7 @@ public class EquipmentUI : MonoBehaviour
         var eq = Equipment.Instance;
         if (eq == null) return;
         if (attackText      != null) attackText.text      = $"Attack: {eq.TotalAttack:F1}";
-        if (attackSpeedText != null) attackSpeedText.text = $"Atk Speed: {eq.TotalAttackSpeed:F2}";
+        if (attackSpeedText != null) attackSpeedText.text = $"Atk Speed: {PlayerStats.Instance?.CombinedAttackSpeed:F2}";
         if (armorText       != null) armorText.text       = $"Armor: {eq.TotalArmor:F1}";
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -20,7 +21,11 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Combat")]
     public float attackDamage = 10f;
-    public float attackSpeed = 1f;
+    public float attackSpeed  = 1f;
+
+    [Header("Regen")]
+    public float hpRegen = 1f;
+    public float mpRegen = 1f;
 
     public const int MaxLevel = 60;
 
@@ -33,6 +38,8 @@ public class PlayerStats : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         LoadLocal();
     }
+
+    void Start() => StartCoroutine(RegenLoop());
 
     void OnApplicationQuit()             => SaveLocal();
     void OnApplicationPause(bool paused) { if (paused) SaveLocal(); }
@@ -71,8 +78,40 @@ public class PlayerStats : MonoBehaviour
         maxHP        += 10f;
         maxMP        += 5f;
         attackDamage += 2f;
+        attackSpeed  += 0.05f;
+        hpRegen      += 0.1f;
+        mpRegen      += 0.05f;
         currentHP     = maxHP;
         currentMP     = maxMP;
+    }
+
+    IEnumerator RegenLoop()
+    {
+        var wait = new WaitForSeconds(1f);
+        while (true)
+        {
+            yield return wait;
+            if (!IsAlive) continue;
+
+            bool changed = false;
+            if (currentHP < maxHP) { currentHP = Mathf.Min(currentHP + hpRegen, maxHP); changed = true; }
+            if (currentMP < maxMP) { currentMP = Mathf.Min(currentMP + mpRegen, maxMP); changed = true; }
+            if (changed) OnStatsChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Average of base player attack speed and equipped weapon attack speed.
+    /// Falls back to base player speed when no weapon is equipped.
+    /// </summary>
+    public float CombinedAttackSpeed
+    {
+        get
+        {
+            float weaponSpeed = Equipment.Instance?.TotalAttackSpeed ?? 0f;
+            if (weaponSpeed <= 0f) return attackSpeed;
+            return (attackSpeed + weaponSpeed) * 0.5f;
+        }
     }
 
     public void TakeDamage(float amount)
@@ -100,6 +139,8 @@ public class PlayerStats : MonoBehaviour
         PlayerPrefs.SetFloat("PS_maxMP",        maxMP);
         PlayerPrefs.SetFloat("PS_attackDamage", attackDamage);
         PlayerPrefs.SetFloat("PS_attackSpeed",  attackSpeed);
+        PlayerPrefs.SetFloat("PS_hpRegen",      hpRegen);
+        PlayerPrefs.SetFloat("PS_mpRegen",      mpRegen);
         PlayerPrefs.Save();
     }
 
@@ -112,22 +153,26 @@ public class PlayerStats : MonoBehaviour
         maxMP        = PlayerPrefs.GetFloat("PS_maxMP",        50f);
         attackDamage = PlayerPrefs.GetFloat("PS_attackDamage", 10f);
         attackSpeed  = PlayerPrefs.GetFloat("PS_attackSpeed",  1f);
+        hpRegen      = PlayerPrefs.GetFloat("PS_hpRegen",      1f);
+        mpRegen      = PlayerPrefs.GetFloat("PS_mpRegen",      1f);
         currentHP    = maxHP;
         currentMP    = maxMP;
     }
 
     // ── Cloud sync ───────────────────────────────────────────────────────
-    public void ApplyCloudData(int lvl, int xp, long totalXp, float mHP, float mMP, float atk, float spd)
+    public void ApplyCloudData(int lvl, int xp, long totalXp, float mHP, float mMP, float atk, float spd, float hpRgn, float mpRgn)
     {
-        level        = lvl;
-        currentXP    = xp;
+        level         = lvl;
+        currentXP     = xp;
         totalXpFarmed = totalXp;
-        maxHP        = mHP;
-        maxMP        = mMP;
-        attackDamage = atk;
-        attackSpeed  = spd;
-        currentHP    = maxHP;
-        currentMP    = maxMP;
+        maxHP         = mHP;
+        maxMP         = mMP;
+        attackDamage  = atk;
+        attackSpeed   = spd;
+        hpRegen       = hpRgn;
+        mpRegen       = mpRgn;
+        currentHP     = maxHP;
+        currentMP     = maxMP;
         SaveLocal();
         OnStatsChanged?.Invoke();
     }

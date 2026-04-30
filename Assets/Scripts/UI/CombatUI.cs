@@ -145,7 +145,6 @@ public class CombatUI : MonoBehaviour
 
     void ReturnToVillage()
     {
-        PlayerStats.Instance.RestoreFullHP();
         SceneManager.LoadScene(villageSceneName);
     }
 }

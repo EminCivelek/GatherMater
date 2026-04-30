@@ -52,6 +52,6 @@ public class ItemSlotUI : MonoBehaviour
 
     private void OnClicked()
     {
-        if (_item != null) _ui.OnItemClicked(_item);
+        if (_item != null) _ui.OnItemClicked(_item, GetComponent<RectTransform>());
     }
 }

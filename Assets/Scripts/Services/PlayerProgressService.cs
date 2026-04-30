@@ -89,6 +89,8 @@ public class PlayerProgressService : MonoBehaviour
             data.maxMP        = PlayerStats.Instance.maxMP;
             data.attackDamage = PlayerStats.Instance.attackDamage;
             data.attackSpeed  = PlayerStats.Instance.attackSpeed;
+            data.hpRegen      = PlayerStats.Instance.hpRegen;
+            data.mpRegen      = PlayerStats.Instance.mpRegen;
         }
 
         if (Inventory.Instance != null)
@@ -138,7 +140,8 @@ public class PlayerProgressService : MonoBehaviour
     {
         PlayerStats.Instance?.ApplyCloudData(
             data.level, data.currentXP, data.totalXpFarmed,
-            data.maxHP, data.maxMP, data.attackDamage, data.attackSpeed
+            data.maxHP, data.maxMP, data.attackDamage, data.attackSpeed,
+            data.hpRegen, data.mpRegen
         );
 
         if (data.resourceKeys?.Count > 0)
@@ -162,6 +165,8 @@ public class PlayerProgressService : MonoBehaviour
         public float maxMP        = 50f;
         public float attackDamage = 10f;
         public float attackSpeed  = 1f;
+        public float hpRegen      = 1f;
+        public float mpRegen      = 1f;
 
         public List<string> resourceKeys   = new();
         public List<int>    resourceValues = new();

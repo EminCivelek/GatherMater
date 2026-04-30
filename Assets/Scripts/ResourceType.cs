@@ -3,5 +3,7 @@ public enum ResourceType
     Wood,
     Stone,
     Gold,
-    Wheat
+    Wheat,
+    Steel,
+    RizeanSteel
 }

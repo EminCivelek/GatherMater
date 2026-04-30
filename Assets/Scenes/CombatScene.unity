@@ -3888,6 +3888,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ed3375763b450ea4aa714dc618f7be25, type: 2}
   mobButtonContainer: {fileID: 1947575056}
   mobButtonPrefab: {fileID: 8344873674986810540, guid: b8c4078ab4d459244bdbde1083a3309c, type: 3}
+  greenBtnPrefab: {fileID: 7722790511566355210, guid: adaa4a040c11d414c948362349441105, type: 3}
   pullSizeLabel: {fileID: 1597559223}
   pullIncBtn: {fileID: 797273143}
   pullDecBtn: {fileID: 681411590}
@@ -5002,12 +5003,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   level: 1
   currentXP: 0
+  totalXpFarmed: 0
   maxHP: 100
   currentHP: 100
   maxMP: 50
   currentMP: 50
   attackDamage: 10
   attackSpeed: 1
+  hpRegen: 1
+  mpRegen: 1
 --- !u!4 &1742595569
 Transform:
   m_ObjectHideFlags: 0
