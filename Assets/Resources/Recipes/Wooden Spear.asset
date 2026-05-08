@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Spear
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Spear
-  icon: {fileID: 0}
+  icon: {fileID: -7652154954077232485, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 5d6f699f44ec74798b38e404a1f88bca, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 7
+    amount: 200
   craftDuration: 12

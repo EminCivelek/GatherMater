@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Steel Boots
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Steel Boots
-  icon: {fileID: 0}
+  icon: {fileID: -1132526995, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 5
   weaponType: 0

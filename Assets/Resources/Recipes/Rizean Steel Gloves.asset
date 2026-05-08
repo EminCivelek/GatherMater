@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Gloves
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Gloves
-  icon: {fileID: 0}
+  icon: {fileID: 8266730139402660024, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 704209d5d8b9f4c50933189030ccbce7, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 3
+    amount: 500
+  - resource: 4
+    amount: 150
   craftDuration: 100

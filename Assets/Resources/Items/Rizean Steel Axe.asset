@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rizean Steel Axe
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Rizean Steel Axe
-  icon: {fileID: 0}
+  icon: {fileID: -6099050445329199328, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 0
   primarySlot: 0
   weaponType: 1

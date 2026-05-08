@@ -18,3 +18,12 @@ MonoBehaviour:
   attackDamage: 5
   attackSpeed: 0.8
   xpReward: 20
+  drops:
+  - type: 3
+    dropChance: 100
+    baseAmount: 3
+    randomExtra: 2
+  - type: 4
+    dropChance: 3
+    baseAmount: 3
+    randomExtra: 2

@@ -16,13 +16,27 @@ MonoBehaviour:
   icon: {fileID: -7520020149588888064, guid: 4189209dc5ebac542a8c0aaac9ca6038, type: 3}
   resourceType: 2
   tiers:
-  - produceRatePerMinute: 60
-    storageCap: 300
+  - produceRatePerMinute: 10
+    storageCap: 100
     upgradeCost:
     - resource: 2
       amount: 100
-    - resource: 1
-      amount: 100
-  - produceRatePerMinute: 120
-    storageCap: 600
+    - resource: 0
+      amount: 300
+  - produceRatePerMinute: 20
+    storageCap: 200
+    upgradeCost:
+    - resource: 2
+      amount: 150
+    - resource: 0
+      amount: 500
+  - produceRatePerMinute: 32
+    storageCap: 350
+    upgradeCost:
+    - resource: 2
+      amount: 225
+    - resource: 0
+      amount: 750
+  - produceRatePerMinute: 42
+    storageCap: 475
     upgradeCost: []

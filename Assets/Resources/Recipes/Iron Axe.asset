@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Iron Axe
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Iron Axe
-  icon: {fileID: 0}
+  icon: {fileID: -5971942374765049077, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 45f50f86945df4b0ba3b01f6cd419f2f, type: 2}
   baseLevel: 1
   requirements:
   - resource: 1
-    amount: 8
+    amount: 300
   craftDuration: 30

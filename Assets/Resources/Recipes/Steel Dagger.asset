@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Dagger
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Dagger
-  icon: {fileID: 0}
+  icon: {fileID: -3694533877916086887, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 9228cafb05c694e96a0d48955b09c57f, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 3
+    amount: 500
   craftDuration: 50

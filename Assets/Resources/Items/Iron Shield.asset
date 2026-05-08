@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Iron Shield
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Iron Shield
-  icon: {fileID: 0}
+  icon: {fileID: 612596470744354101, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 1
   primarySlot: 1
   weaponType: 9

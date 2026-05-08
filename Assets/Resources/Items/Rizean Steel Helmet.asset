@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rizean Steel Helmet
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Rizean Steel Helmet
-  icon: {fileID: 0}
+  icon: {fileID: -893012132824976593, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 2
   weaponType: 0

@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Spear
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Spear
-  icon: {fileID: 0}
+  icon: {fileID: -9075936618163766259, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 8017c0d752b684590a6d1620589979c8, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 7
+    amount: 1000
+  - resource: 4
+    amount: 250
   craftDuration: 130

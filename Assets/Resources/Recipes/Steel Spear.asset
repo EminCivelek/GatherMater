@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Spear
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Spear
-  icon: {fileID: 0}
+  icon: {fileID: -2421343691936151383, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 5dacd672db3184984b1a3f879fdeab49, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 7
+    amount: 500
   craftDuration: 65

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Steel Spear
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Steel Spear
-  icon: {fileID: 0}
+  icon: {fileID: -2421343691936151383, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 0
   primarySlot: 0
   weaponType: 2

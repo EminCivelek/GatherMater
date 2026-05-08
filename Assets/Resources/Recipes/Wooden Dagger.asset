@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Dagger
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Dagger
-  icon: {fileID: 0}
+  icon: {fileID: -7855203551248514480, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 5936dbca5ce054ab79251fdfacae3719, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 3
+    amount: 200
   craftDuration: 8

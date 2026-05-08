@@ -15,7 +15,27 @@ MonoBehaviour:
   buildingName: Storage
   icon: {fileID: 21300000, guid: 8505140710fbc9a4da6894b64f4a0120, type: 3}
   tiers:
+  - capacity: 500
+    upgradeCost:
+    - resource: 0
+      amount: 250
+    - resource: 1
+      amount: 250
+    - resource: 2
+      amount: 250
+    - resource: 3
+      amount: 250
   - capacity: 1000
+    upgradeCost:
+    - resource: 0
+      amount: 750
+    - resource: 1
+      amount: 750
+    - resource: 2
+      amount: 750
+    - resource: 3
+      amount: 750
+  - capacity: 1500
     upgradeCost:
     - resource: 0
       amount: 1000
@@ -26,12 +46,4 @@ MonoBehaviour:
     - resource: 3
       amount: 1000
   - capacity: 2000
-    upgradeCost:
-    - resource: 0
-      amount: 2000
-    - resource: 1
-      amount: 2000
-    - resource: 2
-      amount: 2000
-    - resource: 3
-      amount: 2000
+    upgradeCost: []

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Axe
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Axe
-  icon: {fileID: 0}
+  icon: {fileID: 4639506938558671751, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: dc96a9aac6d2f468984f083567ce0f0e, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 8
+    amount: 500
   craftDuration: 75

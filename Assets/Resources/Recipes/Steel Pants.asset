@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Pants
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Pants
-  icon: {fileID: 0}
+  icon: {fileID: -6297800631036545471, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 1bd7116c76e204c9f8f695b63eac2dd9, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 6
+    amount: 300
   craftDuration: 65

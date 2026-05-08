@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Pants
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Pants
-  icon: {fileID: 0}
+  icon: {fileID: -2360418572804486258, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: a7adf5e1c0e9e4355b1ed805856926d4, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 6
+    amount: 500
+  - resource: 4
+    amount: 150
   craftDuration: 130

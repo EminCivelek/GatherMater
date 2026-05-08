@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wooden Pants
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Wooden Pants
-  icon: {fileID: 0}
+  icon: {fileID: 4061693544578754373, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 4
   weaponType: 0

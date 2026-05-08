@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rizean Steel Chest
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Rizean Steel Chest
-  icon: {fileID: 0}
+  icon: {fileID: 1623647345179350462, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 3
   weaponType: 0

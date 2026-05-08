@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wooden Mace
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Wooden Mace
-  icon: {fileID: 0}
+  icon: {fileID: -2821042892349479055, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 0
   primarySlot: 0
   weaponType: 8

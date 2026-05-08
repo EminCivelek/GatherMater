@@ -13,6 +13,7 @@ public class InventoryUI : MonoBehaviour
     {
         public ResourceType type;
         public Sprite       icon;
+        public bool         hideWhenEmpty;
     }
 
     [SerializeField] private ResourceSlotUI     slotPrefab;
@@ -20,6 +21,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private ResourceIconEntry[] resourceIcons;
 
     private readonly Dictionary<ResourceType, ResourceSlotUI> _slots = new();
+    private readonly HashSet<ResourceType> _hideWhenEmpty = new();
 
     private void Start()
     {
@@ -28,13 +30,14 @@ public class InventoryUI : MonoBehaviour
             ResourceSlotUI slot = Instantiate(slotPrefab, slotsParent);
             slot.Init(entry.type, entry.icon);
             _slots[entry.type] = slot;
+            if (entry.hideWhenEmpty)
+                _hideWhenEmpty.Add(entry.type);
         }
 
         if (Inventory.Instance == null) return;
 
         Inventory.Instance.OnResourceChanged += Refresh;
 
-        // Populate initial values (all 0 on a fresh session)
         foreach (var entry in resourceIcons)
             Refresh(entry.type, Inventory.Instance.Get(entry.type));
     }
@@ -47,7 +50,9 @@ public class InventoryUI : MonoBehaviour
 
     private void Refresh(ResourceType type, int count)
     {
-        if (_slots.TryGetValue(type, out ResourceSlotUI slot))
-            slot.UpdateCount(count);
+        if (!_slots.TryGetValue(type, out ResourceSlotUI slot)) return;
+        slot.UpdateCount(count);
+        if (_hideWhenEmpty.Contains(type))
+            slot.gameObject.SetActive(count > 0);
     }
 }

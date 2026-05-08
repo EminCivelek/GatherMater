@@ -48,7 +48,7 @@ public class Inventory : MonoBehaviour
         return total;
     }
 
-    private void Save()
+    public void Save()
     {
         foreach (var pair in _items)
             PlayerPrefs.SetInt($"Inv_{pair.Key}", pair.Value);

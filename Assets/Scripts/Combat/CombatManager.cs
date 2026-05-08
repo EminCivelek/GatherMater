@@ -46,6 +46,7 @@ public class CombatManager : MonoBehaviour
 
         _playerAttackTimer = 1f / PlayerStats.Instance.CombinedAttackSpeed;
         _totalXPGained = 0;
+        LastDrops = new();
         _fightActive = true;
         StartCoroutine(CombatLoop());
     }
@@ -108,13 +109,45 @@ public class CombatManager : MonoBehaviour
             {
                 _fightActive = false;
                 LastXPGained = _totalXPGained;
+                RollAndCollectDrops();
                 OnCombatLog?.Invoke($"Victory! Total XP gained: {_totalXPGained}.");
                 OnCombatEnd?.Invoke();
             }
         }
     }
 
+    void RollAndCollectDrops()
+    {
+        var totals = new System.Collections.Generic.Dictionary<ResourceType, int>();
+
+        foreach (var mob in Mobs)
+        {
+            foreach (var drop in mob.Config.drops)
+            {
+                int rolled = drop.Roll();
+                if (rolled <= 0) continue;
+                totals.TryGetValue(drop.type, out int existing);
+                totals[drop.type] = existing + rolled;
+            }
+        }
+
+        LastDrops = new();
+        foreach (var pair in totals)
+        {
+            if (pair.Value <= 0) continue;
+            if (Inventory.Instance == null)
+            {
+                Debug.LogWarning("[CombatManager] Inventory.Instance is null — drops could not be added.");
+                continue;
+            }
+            int added = Inventory.Instance.Add(pair.Key, pair.Value);
+            if (added > 0)
+                LastDrops.Add((pair.Key, added));
+        }
+    }
+
     public int LastXPGained { get; private set; }
+    public List<(ResourceType type, int amount)> LastDrops { get; private set; } = new();
 
     public bool IsFighting => _fightActive;
     public bool PlayerWon  => _fightActive == false && PlayerStats.Instance.IsAlive;

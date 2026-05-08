@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Iron Gloves
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Iron Gloves
-  icon: {fileID: 0}
+  icon: {fileID: 435022092839361305, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 5a327ab7984b04989a119d0ff64aaf74, type: 2}
   baseLevel: 1
   requirements:
   - resource: 1
-    amount: 3
+    amount: 200
   craftDuration: 20

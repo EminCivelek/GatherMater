@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Helmet
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Helmet
-  icon: {fileID: 0}
+  icon: {fileID: -586250976929357127, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: fd04976a4a8e94bb995bddf2fd5c08e4, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 4
+    amount: 300
   craftDuration: 55

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Mace
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Mace
-  icon: {fileID: 0}
+  icon: {fileID: 3719068211130651045, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: ebc4ee64e12c24207993572b62fc28a1, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 6
+    amount: 500
   craftDuration: 65

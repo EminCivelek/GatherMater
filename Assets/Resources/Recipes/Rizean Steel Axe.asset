@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Axe
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Axe
-  icon: {fileID: 0}
+  icon: {fileID: -6099050445329199328, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 5cbab7090ad064eff8993e8ea96a0a08, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 8
+    amount: 1000
+  - resource: 4
+    amount: 250
   craftDuration: 150

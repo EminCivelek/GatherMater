@@ -30,6 +30,7 @@ public class CombatUI : MonoBehaviour
     [SerializeField] GameObject resultPanel;
     [SerializeField] TextMeshProUGUI resultLabel;
     [SerializeField] TextMeshProUGUI xpResultLabel;
+    [SerializeField] TextMeshProUGUI dropsLabel;
     [SerializeField] Button fightAgainBtn;
     [SerializeField] Button returnBtn;
 
@@ -122,8 +123,25 @@ public class CombatUI : MonoBehaviour
         resultPanel.SetActive(true);
         bool won = CombatManager.Instance.PlayerWon;
         resultLabel.text = won ? "Victory!" : "Defeated!";
+
         if (xpResultLabel != null)
             xpResultLabel.text = won ? $"+{CombatManager.Instance.LastXPGained} XP" : "";
+
+        if (dropsLabel != null)
+        {
+            if (won && CombatManager.Instance.LastDrops.Count > 0)
+            {
+                var sb = new System.Text.StringBuilder("Drops:\n");
+                foreach (var (type, amount) in CombatManager.Instance.LastDrops)
+                    sb.AppendLine($"  {type}: +{amount}");
+                dropsLabel.text = sb.ToString().TrimEnd();
+            }
+            else
+            {
+                dropsLabel.text = "";
+            }
+        }
+
         fightAgainBtn.interactable = won;
 
         if (!won)
@@ -146,6 +164,7 @@ public class CombatUI : MonoBehaviour
     void ReturnToVillage()
     {
         PlayerStats.Instance?.SaveLocal();
+        Inventory.Instance?.Save();
         SceneManager.LoadScene(villageSceneName);
     }
 }

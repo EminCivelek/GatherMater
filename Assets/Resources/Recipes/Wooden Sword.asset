@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Sword
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Sword
-  icon: {fileID: 0}
+  icon: {fileID: 8033092973025764044, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 8fc8b469fad764a74bbde382f7fbd412, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 5
+    amount: 200
   craftDuration: 10

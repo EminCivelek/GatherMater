@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Chest
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Chest
-  icon: {fileID: 0}
+  icon: {fileID: 1623647345179350462, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: da238e26c13a64f1a97be3304ed4a6cd, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 8
+    amount: 500
+  - resource: 4
+    amount: 150
   craftDuration: 160

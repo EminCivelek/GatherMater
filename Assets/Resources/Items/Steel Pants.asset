@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Steel Pants
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Steel Pants
-  icon: {fileID: 0}
+  icon: {fileID: -6297800631036545471, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 4
   weaponType: 0

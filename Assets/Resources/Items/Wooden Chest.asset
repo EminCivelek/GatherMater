@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wooden Chest
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Wooden Chest
-  icon: {fileID: 0}
+  icon: {fileID: -6822941647383629172, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 3
   weaponType: 0

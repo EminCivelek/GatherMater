@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wooden Helmet
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Wooden Helmet
-  icon: {fileID: 0}
+  icon: {fileID: 2049916588613589399, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 2
   weaponType: 0

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Steel Chest
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Steel Chest
-  icon: {fileID: 0}
+  icon: {fileID: -851715481033328299, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 525f5a16f231342dabea0d5e1bbbd873, type: 2}
   baseLevel: 1
   requirements:
   - resource: 4
-    amount: 8
+    amount: 300
   craftDuration: 80

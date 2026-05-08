@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rizean Steel Boots
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Rizean Steel Boots
-  icon: {fileID: 0}
+  icon: {fileID: -4068327758537392850, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 2
   primarySlot: 5
   weaponType: 0

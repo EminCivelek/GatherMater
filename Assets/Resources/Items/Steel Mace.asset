@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Steel Mace
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Steel Mace
-  icon: {fileID: 0}
+  icon: {fileID: 3719068211130651045, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 0
   primarySlot: 0
   weaponType: 8

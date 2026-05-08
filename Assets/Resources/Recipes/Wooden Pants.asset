@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Pants
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Pants
-  icon: {fileID: 0}
+  icon: {fileID: 4061693544578754373, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 78120cf470cde41009d5f24779d634c6, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 6
+    amount: 100
   craftDuration: 12

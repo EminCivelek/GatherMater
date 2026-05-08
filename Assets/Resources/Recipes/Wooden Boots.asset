@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Boots
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Boots
-  icon: {fileID: 0}
+  icon: {fileID: -8700347722689439309, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 7940fde3abce640ad9eb5c892e0a4fe2, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 4
+    amount: 100
   craftDuration: 10

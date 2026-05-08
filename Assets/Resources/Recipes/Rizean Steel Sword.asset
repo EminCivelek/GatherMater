@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rizean Steel Sword
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Rizean Steel Sword
-  icon: {fileID: 0}
+  icon: {fileID: -7573354855677281409, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 2869d45860f5e458b88bf1c851460b8a, type: 2}
   baseLevel: 1
   requirements:
   - resource: 5
-    amount: 5
+    amount: 1000
+  - resource: 4
+    amount: 250
   craftDuration: 120

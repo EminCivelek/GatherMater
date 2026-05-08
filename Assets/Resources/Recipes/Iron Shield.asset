@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Iron Shield
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Iron Shield
-  icon: {fileID: 0}
+  icon: {fileID: 612596470744354101, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: 4ab72354e3394438fb3d01c32dee04e0, type: 2}
   baseLevel: 1
   requirements:
   - resource: 1
-    amount: 6
+    amount: 300
   craftDuration: 28

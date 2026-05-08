@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rizean Steel Mace
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Rizean Steel Mace
-  icon: {fileID: 0}
+  icon: {fileID: 5248844365648247204, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   category: 0
   primarySlot: 0
   weaponType: 8

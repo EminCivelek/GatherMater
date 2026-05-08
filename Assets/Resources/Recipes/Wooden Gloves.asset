@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Wooden Gloves
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   displayName: Wooden Gloves
-  icon: {fileID: 0}
+  icon: {fileID: -3074023447068413781, guid: ab5ad85bc5d87e941b48115f4a103e8e, type: 3}
   outputItem: {fileID: 11400000, guid: aa9b825c5741347d7b0f311cc15c1579, type: 2}
   baseLevel: 1
   requirements:
   - resource: 0
-    amount: 3
+    amount: 100
   craftDuration: 8
