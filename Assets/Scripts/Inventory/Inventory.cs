@@ -16,9 +16,11 @@ public class Inventory : MonoBehaviour
     /// <summary>Fires with (resourceType, newCount) whenever a resource amount changes.</summary>
     public event Action<ResourceType, int> OnResourceChanged;
 
-    public int Capacity     { get; private set; } = 200;
-    public int TotalCount   => GetTotalCount();
-    public int RemainingCapacity => Mathf.Max(0, Capacity - TotalCount);
+    public int Capacity   { get; private set; } = 1000;
+    public int TotalCount => GetTotalCount();
+
+    public int RemainingFor(ResourceType type) =>
+        Mathf.Max(0, Capacity - (_items.TryGetValue(type, out int c) ? c : 0));
 
     private void Awake()
     {
@@ -53,11 +55,11 @@ public class Inventory : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    /// <summary>Add a positive amount of a resource, clamped to remaining capacity. Returns amount actually added.</summary>
+    /// <summary>Add a positive amount of a resource, clamped to per-resource capacity. Returns amount actually added.</summary>
     public int Add(ResourceType type, int amount)
     {
         if (amount <= 0) return 0;
-        int canAdd = Mathf.Min(amount, RemainingCapacity);
+        int canAdd = Mathf.Min(amount, RemainingFor(type));
         if (canAdd <= 0) return 0;
         _items[type] += canAdd;
         OnResourceChanged?.Invoke(type, _items[type]);

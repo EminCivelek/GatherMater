@@ -15,8 +15,8 @@ public class StorageConfig : ScriptableObject
     [Serializable]
     public class StorageTier
     {
-        [Tooltip("Total sum of all resources the player can hold at this tier.")]
-        public int capacity = 200;
+        [Tooltip("Maximum units of each individual resource the player can hold at this tier.")]
+        public int capacity = 1000;
         [Tooltip("Cost to upgrade FROM this tier to the next. Leave empty on the last tier.")]
         public UpgradeCost[] upgradeCost;
     }

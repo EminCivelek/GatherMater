@@ -24,6 +24,8 @@ public class NameSetupUI : MonoBehaviour
     const int    MAX_LENGTH    = 20;
     const int    MIN_LENGTH    = 3;
 
+    IsometricPlayerController _playerCtrl;
+
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
@@ -80,6 +82,12 @@ public class NameSetupUI : MonoBehaviour
         }
 
         Debug.Log("[NameSetup] Showing panel");
+        _playerCtrl = FindAnyObjectByType<IsometricPlayerController>();
+        if (_playerCtrl != null)
+        {
+            _playerCtrl.enabled = false;
+            _playerCtrl.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        }
         panel.SetActive(true);
     }
 
@@ -113,6 +121,7 @@ public class NameSetupUI : MonoBehaviour
             PlayerPrefs.SetInt(PREF_NAME_SET, 1);
             PlayerPrefs.Save();
             panel.SetActive(false);
+            if (_playerCtrl != null) _playerCtrl.enabled = true;
             Debug.Log($"[NameSetup] Player name set: {name}");
         }
         catch (Exception e)

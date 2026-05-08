@@ -54,8 +54,15 @@ public class PlayerProgressService : MonoBehaviour
 
     void OnSceneChanged(Scene from, Scene to)
     {
+        // Defer by one frame so CraftingStation.Start() can award completed jobs first
         if (to.name == "VillageScene" && !_isLoading)
-            _ = SaveAsync();
+            StartCoroutine(SaveAfterStartRoutine());
+    }
+
+    System.Collections.IEnumerator SaveAfterStartRoutine()
+    {
+        yield return null;
+        if (!_isLoading) _ = SaveAsync();
     }
 
     void OnApplicationQuit()             => _ = SaveAsync();
@@ -147,11 +154,16 @@ public class PlayerProgressService : MonoBehaviour
         if (data.resourceKeys?.Count > 0)
             Inventory.Instance?.ApplyCloudData(data.resourceKeys, data.resourceValues);
 
-        if (data.invItemIds?.Count > 0)
-            ItemInventory.Instance?.ApplyCloudData(data.invItemIds, data.invItemLevels);
+        // Always apply even when empty — empty means the player's inventory IS empty
+        // (e.g. everything equipped). The old Count > 0 guard let stale local data survive.
+        ItemInventory.Instance?.ApplyCloudData(
+            data.invItemIds    ?? new System.Collections.Generic.List<string>(),
+            data.invItemLevels ?? new System.Collections.Generic.List<int>());
 
-        if (data.equipSlots?.Count > 0)
-            Equipment.Instance?.ApplyCloudData(data.equipSlots, data.equipItemIds, data.equipItemLevels);
+        Equipment.Instance?.ApplyCloudData(
+            data.equipSlots      ?? new System.Collections.Generic.List<string>(),
+            data.equipItemIds    ?? new System.Collections.Generic.List<string>(),
+            data.equipItemLevels ?? new System.Collections.Generic.List<int>());
     }
 
     // ── Data structure ────────────────────────────────────────────────────

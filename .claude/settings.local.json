@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Scripts\" -Recurse -File -Filter \"*.cs\")",
+      "Bash(Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

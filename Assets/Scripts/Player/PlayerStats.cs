@@ -152,6 +152,7 @@ public class PlayerStats : MonoBehaviour
         PlayerPrefs.SetFloat("PS_attackSpeed",  attackSpeed);
         PlayerPrefs.SetFloat("PS_hpRegen",      hpRegen);
         PlayerPrefs.SetFloat("PS_mpRegen",      mpRegen);
+        PlayerPrefs.SetString("PS_saveTime",    DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
         PlayerPrefs.Save();
     }
 
@@ -168,6 +169,20 @@ public class PlayerStats : MonoBehaviour
         mpRegen      = PlayerPrefs.GetFloat("PS_mpRegen",      1f);
         currentHP    = PlayerPrefs.GetFloat("PS_currentHP",    maxHP);
         currentMP    = PlayerPrefs.GetFloat("PS_currentMP",    maxMP);
+
+        ApplyOfflineRegen();
+    }
+
+    void ApplyOfflineRegen()
+    {
+        if (currentHP <= 0f) return;
+        if (!long.TryParse(PlayerPrefs.GetString("PS_saveTime", "0"), out long savedUnix) || savedUnix <= 0) return;
+
+        long elapsed = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - savedUnix;
+        if (elapsed <= 0) return;
+
+        currentHP = Mathf.Min(currentHP + hpRegen * elapsed, maxHP);
+        currentMP = Mathf.Min(currentMP + mpRegen * elapsed, maxMP);
     }
 
     // ── Cloud sync ───────────────────────────────────────────────────────

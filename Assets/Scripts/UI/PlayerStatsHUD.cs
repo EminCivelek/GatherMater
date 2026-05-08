@@ -39,6 +39,18 @@ public class PlayerStatsHUD : MonoBehaviour
 
     void Start()
     {
+        // Re-attempt subscription here in case PlayerStats.Instance was null in OnEnable
+        // (OnEnable fires per-object and can run before PlayerStats.Awake sets its Instance).
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.OnStatsChanged -= Refresh;
+            PlayerStats.Instance.OnStatsChanged += Refresh;
+        }
+        if (UGSManager.Instance != null)
+        {
+            UGSManager.Instance.OnSignedIn -= RefreshName;
+            UGSManager.Instance.OnSignedIn += RefreshName;
+        }
         RefreshName();
         Refresh();
     }

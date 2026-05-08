@@ -73,7 +73,7 @@ public class StorageUI : MonoBehaviour
         if (showUpgrade)
         {
             var nextTier = _current.Config.tiers[_current.UpgradeLevel + 1];
-            upgradeLabel.text = $"Upgrade to Lv {_current.UpgradeLevel + 2}  ({nextTier.capacity} capacity)";
+            upgradeLabel.text = $"Upgrade to Lv {_current.UpgradeLevel + 2}  ({nextTier.capacity}/resource)";
 
             var costs = _current.UpgradeCosts;
             var sb = new StringBuilder();
@@ -89,8 +89,7 @@ public class StorageUI : MonoBehaviour
 
     private void RefreshCapacityText()
     {
-        int total = Inventory.Instance?.TotalCount ?? 0;
-        int cap   = Inventory.Instance?.Capacity   ?? 0;
-        capacityText.text = $"{total} / {cap} total resources";
+        int cap = Inventory.Instance?.Capacity ?? 0;
+        capacityText.text = $"Capacity: {cap} per resource";
     }
 }
