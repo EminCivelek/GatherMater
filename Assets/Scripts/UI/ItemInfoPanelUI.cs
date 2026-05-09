@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -40,12 +41,18 @@ public class ItemInfoPanelUI : MonoBehaviour
     [SerializeField] private GameObject offHandTag;
 
     [Header("Action Buttons")]
+    [SerializeField] private GameObject actionButtonsGroup;
     [SerializeField] private Button equipButton;
     [SerializeField] private Button disenchantButton;
     [SerializeField] private Button sellButton;
     [SerializeField] private Button destroyButton;
 
+    [Header("Crafting Action Buttons")]
+    [SerializeField] private GameObject craftingActionButtonsGroup;
+    [SerializeField] private Button     craftingCraftButton;
+
     private ItemInstance _item;
+    private Action       _onCraft;
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────────
     private void Awake()
@@ -62,12 +69,26 @@ public class ItemInfoPanelUI : MonoBehaviour
         disenchantButton.onClick.AddListener(OnDisenchant);
         sellButton.onClick.AddListener(OnSell);
         destroyButton.onClick.AddListener(OnDestroyItem);
+        craftingCraftButton?.onClick.AddListener(OnCraft);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────────
     public void Open(ItemInstance item)
     {
-        _item = item;
+        _item    = item;
+        _onCraft = null;
+        if (actionButtonsGroup         != null) actionButtonsGroup.SetActive(true);
+        if (craftingActionButtonsGroup != null) craftingActionButtonsGroup.SetActive(false);
+        Populate(item);
+        panel.SetActive(true);
+    }
+
+    public void OpenForCraft(ItemInstance item, Action onCraft)
+    {
+        _item    = item;
+        _onCraft = onCraft;
+        if (actionButtonsGroup         != null) actionButtonsGroup.SetActive(false);
+        if (craftingActionButtonsGroup != null) craftingActionButtonsGroup.SetActive(true);
         Populate(item);
         panel.SetActive(true);
     }
@@ -75,7 +96,8 @@ public class ItemInfoPanelUI : MonoBehaviour
     public void Close()
     {
         panel.SetActive(false);
-        _item = null;
+        _item    = null;
+        _onCraft = null;
     }
 
     // ── Populate ──────────────────────────────────────────────────────────────────
@@ -178,6 +200,12 @@ public class ItemInfoPanelUI : MonoBehaviour
     {
         if (_item == null) return;
         ItemInventory.Instance?.Remove(_item);
+        Close();
+    }
+
+    private void OnCraft()
+    {
+        _onCraft?.Invoke();
         Close();
     }
 }

@@ -114,10 +114,13 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float amount)
+    public float TakeDamage(float amount)
     {
-        currentHP = Mathf.Max(0f, currentHP - amount);
+        float armor = Equipment.Instance != null ? Equipment.Instance.TotalArmor : 0f;
+        float reduced = amount * (100f / (100f + armor));
+        currentHP = Mathf.Max(0f, currentHP - reduced);
         OnStatsChanged?.Invoke();
+        return reduced;
     }
 
     public void LoseXPOnDeath()

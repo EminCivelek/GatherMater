@@ -27,3 +27,4 @@ MonoBehaviour:
     dropChance: 3
     baseAmount: 3
     randomExtra: 2
+  scrollDrops: []

@@ -14,6 +14,7 @@ public class RecipeSlotUI : MonoBehaviour
     [SerializeField] private TMP_Text requirementsText;
     [SerializeField] private TMP_Text durationText;
     [SerializeField] private Button   craftButton;
+    [SerializeField] private Button   infoButton;
 
     private CraftingRecipe          _recipe;
     private Action<CraftingRecipe>  _onCraft;
@@ -24,11 +25,26 @@ public class RecipeSlotUI : MonoBehaviour
         _onCraft = onCraft;
 
         if (recipe.icon != null) icon.sprite = recipe.icon;
-        recipeName.text      = recipe.displayName;
+        recipeName.text       = recipe.displayName;
         requirementsText.text = recipe.GetRequirementsText();
-        durationText.text    = $"{recipe.craftDuration}s";
+        durationText.text     = $"{recipe.craftDuration}s";
 
         craftButton.onClick.AddListener(() => _onCraft?.Invoke(_recipe));
+
+        if (infoButton != null)
+        {
+            infoButton.onClick.AddListener(() =>
+            {
+                var outputItem = new ItemInstance
+                {
+                    itemDataId = recipe.outputItem?.name,
+                    level      = 1,
+                    data       = recipe.outputItem
+                };
+                ItemInfoPanelUI.Instance?.OpenForCraft(outputItem, () => _onCraft?.Invoke(_recipe));
+            });
+        }
+
         RefreshAffordability();
     }
 

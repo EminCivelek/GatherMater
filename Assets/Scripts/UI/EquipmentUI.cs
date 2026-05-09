@@ -97,6 +97,14 @@ public class EquipmentUI : MonoBehaviour
 
     public void Close() => panel.SetActive(false);
 
+    private void OnDestroy()
+    {
+        if (ItemInventory.Instance != null)
+            ItemInventory.Instance.OnItemsChanged -= RefreshInventory;
+        if (Equipment.Instance != null)
+            Equipment.Instance.OnEquipmentChanged -= RefreshAll;
+    }
+
     public void OnItemClicked(ItemInstance item, RectTransform slotRect)
     {
         if (item?.data == null) return;

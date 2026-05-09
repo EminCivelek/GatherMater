@@ -2,11 +2,20 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
+public class ScrollDrop
+{
+    public ScrollType type;
+    [Range(0f, 100f)] public float dropChance = 10f;
+
+    public bool Roll() => Random.Range(0f, 100f) <= dropChance;
+}
+
+[System.Serializable]
 public class ResourceDrop
 {
     public ResourceType type;
     [Range(0f, 100f)] public float dropChance = 100f;
-    [Min(0)] public int baseAmount;
+    [Min(1)] public int baseAmount = 1;
     [Min(0)] public int randomExtra;
 
     // Returns 0 if chance roll fails, otherwise base + random extra.
@@ -29,4 +38,7 @@ public class MobConfig : ScriptableObject
 
     [Header("Resource Drops")]
     public List<ResourceDrop> drops = new();
+
+    [Header("Scroll Drops")]
+    public List<ScrollDrop> scrollDrops = new();
 }

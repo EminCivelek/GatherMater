@@ -1,4 +1,4 @@
 public enum ItemCategory
 {
-    Weapon, Shield, Armor
+    Weapon, Shield, Armor, Scroll
 }

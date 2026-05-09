@@ -14,6 +14,7 @@ public class CombatUI : MonoBehaviour
     [SerializeField] Slider xpSlider;
     [SerializeField] TextMeshProUGUI xpLabel;
     [SerializeField] TextMeshProUGUI levelLabel;
+    [SerializeField] TextMeshProUGUI armorLabel;
 
     [Header("Player Sprite")]
     [SerializeField] Image playerSpriteImage;
@@ -107,6 +108,12 @@ public class CombatUI : MonoBehaviour
         xpLabel.text = $"{ps.currentXP} / {ps.XPToNextLevel} XP";
 
         levelLabel.text = $"Lv {ps.level}";
+
+        if (armorLabel != null)
+        {
+            float armor = Equipment.Instance != null ? Equipment.Instance.TotalArmor : 0f;
+            armorLabel.text = $"Armor: {armor:F0}";
+        }
     }
 
     void AppendLog(string line)
@@ -129,11 +136,16 @@ public class CombatUI : MonoBehaviour
 
         if (dropsLabel != null)
         {
-            if (won && CombatManager.Instance.LastDrops.Count > 0)
+            var resourceDrops = CombatManager.Instance.LastDrops;
+            var scrollDrops   = CombatManager.Instance.LastScrollDrops;
+
+            if (won && (resourceDrops.Count > 0 || scrollDrops.Count > 0))
             {
                 var sb = new System.Text.StringBuilder("Drops:\n");
-                foreach (var (type, amount) in CombatManager.Instance.LastDrops)
+                foreach (var (type, amount) in resourceDrops)
                     sb.AppendLine($"  {type}: +{amount}");
+                foreach (var (type, amount) in scrollDrops)
+                    sb.AppendLine($"  {type} Upgrade Scroll x{amount}");
                 dropsLabel.text = sb.ToString().TrimEnd();
             }
             else

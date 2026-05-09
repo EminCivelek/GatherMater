@@ -47,6 +47,7 @@ public class CombatManager : MonoBehaviour
         _playerAttackTimer = 1f / PlayerStats.Instance.CombinedAttackSpeed;
         _totalXPGained = 0;
         LastDrops = new();
+        LastScrollDrops = new();
         _fightActive = true;
         StartCoroutine(CombatLoop());
     }
@@ -89,8 +90,8 @@ public class CombatManager : MonoBehaviour
                 {
                     mob.AttackTimer = 1f / mob.Config.attackSpeed;
                     float dmg = mob.Config.attackDamage;
-                    PlayerStats.Instance.TakeDamage(dmg);
-                    OnCombatLog?.Invoke($"{mob.Config.mobName} hits you for {dmg:F0} dmg.");
+                    float actual = PlayerStats.Instance.TakeDamage(dmg);
+                    OnCombatLog?.Invoke($"{mob.Config.mobName} hits you for {actual:F0} dmg.");
                 }
             }
 
@@ -144,10 +145,42 @@ public class CombatManager : MonoBehaviour
             if (added > 0)
                 LastDrops.Add((pair.Key, added));
         }
+
+        // Scroll drops — one chance per mob per entry
+        LastScrollDrops = new();
+        var scrollTotals = new System.Collections.Generic.Dictionary<ScrollType, int>();
+        foreach (var mob in Mobs)
+        {
+            foreach (var drop in mob.Config.scrollDrops)
+            {
+                if (!drop.Roll()) continue;
+                scrollTotals.TryGetValue(drop.type, out int existing);
+                scrollTotals[drop.type] = existing + 1;
+            }
+        }
+        foreach (var pair in scrollTotals)
+        {
+            string itemName = ScrollItemName(pair.Key);
+            var data = ItemDatabase.Instance?.FindById(itemName);
+            if (data == null) continue;
+            for (int i = 0; i < pair.Value; i++)
+                ItemInventory.Instance?.Add(new ItemInstance { itemDataId = itemName, level = 1, data = data });
+            LastScrollDrops.Add((pair.Key, pair.Value));
+        }
     }
+
+    static string ScrollItemName(ScrollType type) => type switch
+    {
+        ScrollType.Wooden      => "Wooden Upgrade Scroll",
+        ScrollType.Iron        => "Iron Upgrade Scroll",
+        ScrollType.Steel       => "Steel Upgrade Scroll",
+        ScrollType.RizeanSteel => "Rizean Steel Upgrade Scroll",
+        _                      => null
+    };
 
     public int LastXPGained { get; private set; }
     public List<(ResourceType type, int amount)> LastDrops { get; private set; } = new();
+    public List<(ScrollType type, int amount)> LastScrollDrops { get; private set; } = new();
 
     public bool IsFighting => _fightActive;
     public bool PlayerWon  => _fightActive == false && PlayerStats.Instance.IsAlive;
