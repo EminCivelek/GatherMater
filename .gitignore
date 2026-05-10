@@ -16,6 +16,9 @@
 # Asset Bundle artifacts
 Assets/AssetBundleData/
 
+# Screenshots
+Assets/Screenshots/
+
 # Crash reports
 sysinfo.txt
 Crashes/
