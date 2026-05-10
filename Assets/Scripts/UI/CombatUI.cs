@@ -6,16 +6,6 @@ using System.Collections.Generic;
 
 public class CombatUI : MonoBehaviour
 {
-    [Header("Player HUD")]
-    [SerializeField] Slider hpSlider;
-    [SerializeField] TextMeshProUGUI hpLabel;
-    [SerializeField] Slider mpSlider;
-    [SerializeField] TextMeshProUGUI mpLabel;
-    [SerializeField] Slider xpSlider;
-    [SerializeField] TextMeshProUGUI xpLabel;
-    [SerializeField] TextMeshProUGUI levelLabel;
-    [SerializeField] TextMeshProUGUI armorLabel;
-
     [Header("Player Sprite")]
     [SerializeField] Image playerSpriteImage;
 
@@ -48,8 +38,6 @@ public class CombatUI : MonoBehaviour
         Debug.Log("[CombatUI] Start — subscribing to CombatManager events");
         CombatManager.Instance.OnCombatLog += AppendLog;
         CombatManager.Instance.OnCombatEnd += ShowResult;
-        if (PlayerStats.Instance != null)
-            PlayerStats.Instance.OnStatsChanged += RefreshPlayerHUD;
 
         fightAgainBtn.onClick.AddListener(FightAgain);
         returnBtn.onClick.AddListener(ReturnToVillage);
@@ -61,7 +49,6 @@ public class CombatUI : MonoBehaviour
         foreach (var row in _mobRows) Destroy(row.gameObject);
         _mobRows.Clear();
         SpawnMobRows();
-        RefreshPlayerHUD();
     }
 
     void OnDestroy()
@@ -71,8 +58,6 @@ public class CombatUI : MonoBehaviour
             CombatManager.Instance.OnCombatLog -= AppendLog;
             CombatManager.Instance.OnCombatEnd -= ShowResult;
         }
-        if (PlayerStats.Instance != null)
-            PlayerStats.Instance.OnStatsChanged -= RefreshPlayerHUD;
     }
 
     void SpawnMobRows()
@@ -91,29 +76,6 @@ public class CombatUI : MonoBehaviour
     {
         foreach (var row in _mobRows)
             row.Refresh();
-    }
-
-    void RefreshPlayerHUD()
-    {
-        PlayerStats ps = PlayerStats.Instance;
-        if (ps == null) return;
-
-        hpSlider.value = ps.currentHP / ps.maxHP;
-        hpLabel.text = $"{ps.currentHP:F0} / {ps.maxHP:F0}";
-
-        mpSlider.value = ps.currentMP / ps.maxMP;
-        mpLabel.text = $"{ps.currentMP:F0} / {ps.maxMP:F0}";
-
-        xpSlider.value = ps.XPToNextLevel > 0 ? (float)ps.currentXP / ps.XPToNextLevel : 0f;
-        xpLabel.text = $"{ps.currentXP} / {ps.XPToNextLevel} XP";
-
-        levelLabel.text = $"Lv {ps.level}";
-
-        if (armorLabel != null)
-        {
-            float armor = Equipment.Instance != null ? Equipment.Instance.TotalArmor : 0f;
-            armorLabel.text = $"Armor: {armor:F0}";
-        }
     }
 
     void AppendLog(string line)
