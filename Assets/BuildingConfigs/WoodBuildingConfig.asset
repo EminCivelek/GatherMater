@@ -41,4 +41,44 @@ MonoBehaviour:
       amount: 200
   - produceRatePerMinute: 150
     storageCap: 550
+    upgradeCost:
+    - resource: 2
+      amount: 400
+    - resource: 0
+      amount: 500
+    - resource: 1
+      amount: 350
+    - resource: 4
+      amount: 100
+  - produceRatePerMinute: 200
+    storageCap: 1200
+    upgradeCost:
+    - resource: 2
+      amount: 650
+    - resource: 0
+      amount: 700
+    - resource: 1
+      amount: 500
+    - resource: 4
+      amount: 200
+  - produceRatePerMinute: 260
+    storageCap: 2100
+    upgradeCost:
+    - resource: 4
+      amount: 400
+    - resource: 2
+      amount: 900
+    - resource: 0
+      amount: 1000
+  - produceRatePerMinute: 330
+    storageCap: 4000
+    upgradeCost:
+    - resource: 4
+      amount: 700
+    - resource: 5
+      amount: 100
+    - resource: 2
+      amount: 1200
+  - produceRatePerMinute: 420
+    storageCap: 7600
     upgradeCost: []

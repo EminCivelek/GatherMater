@@ -109,17 +109,19 @@ public class PlayerProgressService : MonoBehaviour
 
         if (ItemInventory.Instance != null)
         {
-            var (ids, levels) = ItemInventory.Instance.GetCloudData();
-            data.invItemIds    = ids;
-            data.invItemLevels = levels;
+            var (ids, levels, instanceIds) = ItemInventory.Instance.GetCloudData();
+            data.invItemIds         = ids;
+            data.invItemLevels      = levels;
+            data.invItemInstanceIds = instanceIds;
         }
 
         if (Equipment.Instance != null)
         {
-            var (slots, ids, levels) = Equipment.Instance.GetCloudData();
-            data.equipSlots      = slots;
-            data.equipItemIds    = ids;
-            data.equipItemLevels = levels;
+            var (slots, ids, levels, instanceIds) = Equipment.Instance.GetCloudData();
+            data.equipSlots       = slots;
+            data.equipItemIds     = ids;
+            data.equipItemLevels  = levels;
+            data.equipInstanceIds = instanceIds;
         }
 
         return JsonUtility.ToJson(data);
@@ -157,13 +159,15 @@ public class PlayerProgressService : MonoBehaviour
         // Always apply even when empty — empty means the player's inventory IS empty
         // (e.g. everything equipped). The old Count > 0 guard let stale local data survive.
         ItemInventory.Instance?.ApplyCloudData(
-            data.invItemIds    ?? new System.Collections.Generic.List<string>(),
-            data.invItemLevels ?? new System.Collections.Generic.List<int>());
+            data.invItemIds         ?? new System.Collections.Generic.List<string>(),
+            data.invItemLevels      ?? new System.Collections.Generic.List<int>(),
+            data.invItemInstanceIds);
 
         Equipment.Instance?.ApplyCloudData(
-            data.equipSlots      ?? new System.Collections.Generic.List<string>(),
-            data.equipItemIds    ?? new System.Collections.Generic.List<string>(),
-            data.equipItemLevels ?? new System.Collections.Generic.List<int>());
+            data.equipSlots       ?? new System.Collections.Generic.List<string>(),
+            data.equipItemIds     ?? new System.Collections.Generic.List<string>(),
+            data.equipItemLevels  ?? new System.Collections.Generic.List<int>(),
+            data.equipInstanceIds);
     }
 
     // ── Data structure ────────────────────────────────────────────────────
@@ -183,11 +187,13 @@ public class PlayerProgressService : MonoBehaviour
         public List<string> resourceKeys   = new();
         public List<int>    resourceValues = new();
 
-        public List<string> invItemIds    = new();
-        public List<int>    invItemLevels = new();
+        public List<string> invItemIds         = new();
+        public List<int>    invItemLevels      = new();
+        public List<string> invItemInstanceIds = new();
 
-        public List<string> equipSlots     = new();
-        public List<string> equipItemIds   = new();
-        public List<int>    equipItemLevels = new();
+        public List<string> equipSlots       = new();
+        public List<string> equipItemIds     = new();
+        public List<int>    equipItemLevels  = new();
+        public List<string> equipInstanceIds = new();
     }
 }

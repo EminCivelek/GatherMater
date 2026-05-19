@@ -68,11 +68,13 @@ public class PlayerStatsHUD : MonoBehaviour
         var s = PlayerStats.Instance;
         if (s == null) return;
 
-        SetFill(hpFillRT, s.maxHP > 0 ? s.currentHP / s.maxHP : 0f);
-        if (hpText != null) hpText.text = $"{Mathf.CeilToInt(s.currentHP)}/{Mathf.RoundToInt(s.maxHP)}";
+        float effHP = s.EffectiveMaxHP;
+        float effMP = s.EffectiveMaxMP;
+        SetFill(hpFillRT, effHP > 0 ? s.currentHP / effHP : 0f);
+        if (hpText != null) hpText.text = $"{Mathf.CeilToInt(s.currentHP)}/{Mathf.RoundToInt(effHP)}";
 
-        SetFill(mpFillRT, s.maxMP > 0 ? s.currentMP / s.maxMP : 0f);
-        if (mpText != null) mpText.text = $"{Mathf.CeilToInt(s.currentMP)}/{Mathf.RoundToInt(s.maxMP)}";
+        SetFill(mpFillRT, effMP > 0 ? s.currentMP / effMP : 0f);
+        if (mpText != null) mpText.text = $"{Mathf.CeilToInt(s.currentMP)}/{Mathf.RoundToInt(effMP)}";
 
         int xpNeeded = s.XPToNextLevel;
         SetFill(xpFillRT, xpNeeded > 0 ? (float)s.currentXP / xpNeeded : 1f);

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 public class CombatUI : MonoBehaviour
@@ -13,34 +14,68 @@ public class CombatUI : MonoBehaviour
     [SerializeField] Transform mobListContainer;
     [SerializeField] MobRowUI mobRowPrefab;
 
-    [Header("Combat Log")]
+    [Header("Live Combat Log (in-fight)")]
     [SerializeField] TextMeshProUGUI combatLogText;
     [SerializeField] int maxLogLines = 8;
 
-    [Header("Result Panel")]
+    [Header("Result Modal")]
     [SerializeField] GameObject resultPanel;
     [SerializeField] TextMeshProUGUI resultLabel;
     [SerializeField] TextMeshProUGUI xpResultLabel;
     [SerializeField] TextMeshProUGUI dropsLabel;
     [SerializeField] Button fightAgainBtn;
     [SerializeField] Button returnBtn;
+    [SerializeField] Button combatLogBtn;
+    [SerializeField] Button selectNewMobBtn;
+    [SerializeField] GameObject selectionPanel;
+
+    [Header("Auto-Fight")]
+    [SerializeField] Toggle     autoFightToggle;
+    [SerializeField] GameObject autoFightLockOverlay;
+
+    [Header("Auto-Fight Countdown")]
+    [SerializeField] GameObject        countdownRow;
+    [SerializeField] TextMeshProUGUI   countdownLabel;
+    [SerializeField] RectTransform     barFill;
+
+    [Header("Combat Log Panel")]
+    [SerializeField] GameObject        logPanel;
+    [SerializeField] TextMeshProUGUI   logPanelText;
+    [SerializeField] ScrollRect        logScrollRect;
+    [SerializeField] Button            closeLogPanelBtn;
 
     [Header("Scene")]
-    [SerializeField] string villageSceneName = "SampleScene";
+    [SerializeField] string villageSceneName = "VillageScene";
 
-    readonly List<string> _logLines = new();
-    readonly List<MobRowUI> _mobRows = new();
+    public static bool AutoFightUnlocked { get; set; } = false;
 
+    const float AutoFightDelay = 5f;
+    Coroutine _countdown;
+
+    readonly List<string> _liveLinesBuffer = new();
+    readonly List<string> _fullLog         = new();
+    readonly List<MobRowUI> _mobRows       = new();
+
+    // ── Unity lifecycle ──────────────────────────────────────────────────────────
     void Start()
     {
         resultPanel.SetActive(false);
+        if (logPanel != null) logPanel.SetActive(false);
+        if (countdownRow != null) countdownRow.SetActive(false);
 
-        Debug.Log("[CombatUI] Start — subscribing to CombatManager events");
         CombatManager.Instance.OnCombatLog += AppendLog;
         CombatManager.Instance.OnCombatEnd += ShowResult;
 
-        fightAgainBtn.onClick.AddListener(FightAgain);
-        returnBtn.onClick.AddListener(ReturnToVillage);
+        // Each button cancels any active countdown first
+        fightAgainBtn.onClick.AddListener(() => { CancelCountdown(); FightAgain(); });
+        returnBtn.onClick.AddListener(()         => { CancelCountdown(); ReturnToVillage(); });
+        combatLogBtn.onClick.AddListener(()      => { CancelCountdown(); OpenLogPanel(); });
+        selectNewMobBtn?.onClick.AddListener(()  => { CancelCountdown(); SelectNewMob(); });
+        closeLogPanelBtn?.onClick.AddListener(CloseLogPanel);
+
+        RefreshAutoFightLock();
+        if (autoFightToggle != null)
+            autoFightToggle.onValueChanged.AddListener(_ => { });
     }
 
     void OnEnable()
@@ -60,63 +95,144 @@ public class CombatUI : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        foreach (var row in _mobRows) row.Refresh();
+    }
+
+    // ── Mob rows ─────────────────────────────────────────────────────────────────
     void SpawnMobRows()
     {
-        Debug.Log($"[CombatUI] SpawnMobRows called. Mob count: {CombatManager.Instance.Mobs.Count}. Prefab: {mobRowPrefab}. Container: {mobListContainer}");
         foreach (var mob in CombatManager.Instance.Mobs)
         {
             MobRowUI row = Instantiate(mobRowPrefab, mobListContainer);
-            Debug.Log($"[CombatUI] Spawned row for {mob.Config.mobName}");
             row.Init(mob);
             _mobRows.Add(row);
         }
     }
 
-    void Update()
-    {
-        foreach (var row in _mobRows)
-            row.Refresh();
-    }
-
+    // ── Log ──────────────────────────────────────────────────────────────────────
     void AppendLog(string line)
     {
-        _logLines.Add(line);
-        if (_logLines.Count > maxLogLines)
-            _logLines.RemoveAt(0);
-        combatLogText.text = string.Join("\n", _logLines);
+        _fullLog.Add(line);
+        _liveLinesBuffer.Add(line);
+        if (_liveLinesBuffer.Count > maxLogLines)
+            _liveLinesBuffer.RemoveAt(0);
+        if (combatLogText != null)
+            combatLogText.text = string.Join("\n", _liveLinesBuffer);
     }
 
+    void OpenLogPanel()
+    {
+        if (logPanel == null) return;
+        if (logPanelText != null)
+            logPanelText.text = string.Join("\n", _fullLog);
+        logPanel.SetActive(true);
+        if (logScrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            logScrollRect.verticalNormalizedPosition = 0f;
+        }
+    }
+
+    void CloseLogPanel()
+    {
+        if (logPanel != null) logPanel.SetActive(false);
+    }
+
+    // ── Auto-fight ───────────────────────────────────────────────────────────────
+    void RefreshAutoFightLock()
+    {
+        if (autoFightToggle      != null) autoFightToggle.interactable = AutoFightUnlocked;
+        if (autoFightLockOverlay != null) autoFightLockOverlay.SetActive(!AutoFightUnlocked);
+    }
+
+    bool IsAutoFightOn => AutoFightUnlocked && autoFightToggle != null && autoFightToggle.isOn;
+
+    // ── Countdown ────────────────────────────────────────────────────────────────
+    IEnumerator RunCountdown()
+    {
+        if (countdownRow != null) countdownRow.SetActive(true);
+        fightAgainBtn.interactable = false;
+
+        float elapsed = 0f;
+        while (elapsed < AutoFightDelay)
+        {
+            elapsed += Time.deltaTime;
+            float remaining = Mathf.Max(0f, AutoFightDelay - elapsed);
+            float progress  = 1f - (elapsed / AutoFightDelay);   // 1 → 0
+
+            if (countdownLabel != null)
+                countdownLabel.text = $"Next fight in {remaining:F1}s…";
+
+            if (barFill != null)
+            {
+                // Drain the bar right-to-left by shrinking anchorMax.x
+                barFill.anchorMax = new Vector2(progress, barFill.anchorMax.y);
+            }
+
+            yield return null;
+        }
+
+        _countdown = null;
+        resultPanel.SetActive(false);
+        CloseLogPanel();
+        RestartFight();
+    }
+
+    void CancelCountdown()
+    {
+        if (_countdown == null) return;
+        StopCoroutine(_countdown);
+        _countdown = null;
+        if (countdownRow != null) countdownRow.SetActive(false);
+        fightAgainBtn.interactable = true;
+    }
+
+    // ── Result modal ─────────────────────────────────────────────────────────────
     void ShowResult()
     {
-        Debug.Log($"[CombatUI] ShowResult called. ResultPanel: {resultPanel}. PlayerWon: {CombatManager.Instance.PlayerWon}");
-        resultPanel.SetActive(true);
         bool won = CombatManager.Instance.PlayerWon;
+
+        resultPanel.SetActive(true);
+        if (countdownRow != null) countdownRow.SetActive(false);
+
         resultLabel.text = won ? "Victory!" : "Defeated!";
 
         if (xpResultLabel != null)
-            xpResultLabel.text = won ? $"+{CombatManager.Instance.LastXPGained} XP" : "";
+            xpResultLabel.text = won ? $"+{CombatManager.Instance.LastXPGained} XP" : "No XP gained";
 
         if (dropsLabel != null)
         {
             var resourceDrops = CombatManager.Instance.LastDrops;
             var scrollDrops   = CombatManager.Instance.LastScrollDrops;
+            var itemDrops     = CombatManager.Instance.LastItemDrops;
 
-            if (won && (resourceDrops.Count > 0 || scrollDrops.Count > 0))
+            if (won && (resourceDrops.Count > 0 || scrollDrops.Count > 0 || itemDrops.Count > 0))
             {
-                var sb = new System.Text.StringBuilder("Drops:\n");
+                var sb = new System.Text.StringBuilder();
                 foreach (var (type, amount) in resourceDrops)
-                    sb.AppendLine($"  {type}: +{amount}");
+                    sb.AppendLine($"• {type}  +{amount}");
                 foreach (var (type, amount) in scrollDrops)
-                    sb.AppendLine($"  {type} Upgrade Scroll x{amount}");
+                    sb.AppendLine($"• {type} Scroll  x{amount}");
+                foreach (var (name, amount) in itemDrops)
+                    sb.AppendLine($"• {name}  x{amount}");
                 dropsLabel.text = sb.ToString().TrimEnd();
             }
             else
             {
-                dropsLabel.text = "";
+                dropsLabel.text = won ? "No drops." : "";
             }
         }
 
-        fightAgainBtn.interactable = won;
+        if (won && IsAutoFightOn)
+        {
+            _countdown = StartCoroutine(RunCountdown());
+        }
+        else
+        {
+            fightAgainBtn.interactable = true;
+        }
 
         if (!won)
             PlayerStats.Instance.RestoreFullHP();
@@ -125,8 +241,15 @@ public class CombatUI : MonoBehaviour
     void FightAgain()
     {
         resultPanel.SetActive(false);
-        _logLines.Clear();
-        combatLogText.text = "";
+        CloseLogPanel();
+        RestartFight();
+    }
+
+    void RestartFight()
+    {
+        _liveLinesBuffer.Clear();
+        _fullLog.Clear();
+        if (combatLogText != null) combatLogText.text = "";
 
         foreach (var row in _mobRows) Destroy(row.gameObject);
         _mobRows.Clear();
@@ -140,5 +263,13 @@ public class CombatUI : MonoBehaviour
         PlayerStats.Instance?.SaveLocal();
         Inventory.Instance?.Save();
         SceneManager.LoadScene(villageSceneName);
+    }
+
+    void SelectNewMob()
+    {
+        resultPanel.SetActive(false);
+        CloseLogPanel();
+        if (selectionPanel != null) selectionPanel.SetActive(true);
+        gameObject.SetActive(false);   // hide CombalPanel; CombatSelectionUI reactivates it on next fight
     }
 }

@@ -46,4 +46,42 @@ MonoBehaviour:
     - resource: 3
       amount: 1000
   - capacity: 2000
+    upgradeCost:
+    - resource: 0
+      amount: 1400
+    - resource: 1
+      amount: 1400
+    - resource: 2
+      amount: 1400
+    - resource: 3
+      amount: 1400
+  - capacity: 3000
+    upgradeCost:
+    - resource: 0
+      amount: 2200
+    - resource: 1
+      amount: 2200
+    - resource: 2
+      amount: 2200
+    - resource: 3
+      amount: 2200
+  - capacity: 4500
+    upgradeCost:
+    - resource: 4
+      amount: 1200
+    - resource: 0
+      amount: 3000
+    - resource: 1
+      amount: 3000
+    - resource: 2
+      amount: 3000
+  - capacity: 6500
+    upgradeCost:
+    - resource: 4
+      amount: 2000
+    - resource: 5
+      amount: 200
+    - resource: 2
+      amount: 5000
+  - capacity: 9000
     upgradeCost: []

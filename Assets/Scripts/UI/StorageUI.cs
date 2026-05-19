@@ -34,6 +34,11 @@ public class StorageUI : MonoBehaviour
         panel.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     private void Start() => _player = FindAnyObjectByType<IsometricPlayerController>();
 
     private void Update()
@@ -45,6 +50,10 @@ public class StorageUI : MonoBehaviour
 
     public void Open(StorageBuilding building)
     {
+        EquipmentUI.Instance?.Close();
+        LeaderboardUI.Instance?.Close();
+        DailyMissionBoardUI.Instance?.Close();
+
         _current = building;
         panel.SetActive(true);
         Refresh();

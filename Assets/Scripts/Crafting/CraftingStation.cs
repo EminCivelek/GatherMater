@@ -88,6 +88,15 @@ public class CraftingStation : MonoBehaviour, IInteractable
     public CraftingRecipe FindRecipe(string id) =>
         Array.Find(recipes, r => r.name == id);
 
+    /// <summary>Speeds up the first active job by the given number of minutes.</summary>
+    public void ApplySpeedUp(int minutes)
+    {
+        if (_activeJobs.Count == 0) return;
+        _activeJobs[0].SpeedUp(minutes);
+        SaveJobs();
+        OnJobsChanged?.Invoke();
+    }
+
     // ── Private helpers ──────────────────────────────────────────────────────────
     private void ProcessCompletedJobs()
     {
@@ -116,6 +125,7 @@ public class CraftingStation : MonoBehaviour, IInteractable
             data       = recipe.outputItem
         };
         ItemInventory.Instance?.Add(item);
+        DailyMissionManager.Instance?.ReportCraft();
         Debug.Log($"[Crafting] Completed: {recipe.outputItem.itemName} Lv{recipe.baseLevel}");
     }
 

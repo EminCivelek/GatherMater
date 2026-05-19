@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9898047dfdd364346a526f2544ff3349, type: 3}
+  m_Name: 10 Frost Witch
+  m_EditorClassIdentifier: Assembly-CSharp::MobConfig
+  mobName: Frost Witch
+  mobSprite: {fileID: -3064374141547952780, guid: efa3db6d65188e146b9cd90d460838dc, type: 3}
+  maxHP: 1500
+  attackDamage: 95
+  attackSpeed: 1.7
+  xpReward: 920
+  drops:
+  - type: 2
+    dropChance: 100
+    baseAmount: 30
+    randomExtra: 20
+  - type: 4
+    dropChance: 60
+    baseAmount: 3
+    randomExtra: 2
+  scrollDrops:
+  - type: 2
+    dropChance: 25
+  itemDrops:
+  - item: {fileID: 11400000, guid: 3f0e7697d120bd54aa3e1e409234af18, type: 2}
+    dropChance: 1

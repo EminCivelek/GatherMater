@@ -19,4 +19,5 @@ MonoBehaviour:
   requirements:
   - resource: 1
     amount: 200
+  goldCost: 100
   craftDuration: 28

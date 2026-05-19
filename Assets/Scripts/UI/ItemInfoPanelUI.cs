@@ -43,6 +43,7 @@ public class ItemInfoPanelUI : MonoBehaviour
     [Header("Action Buttons")]
     [SerializeField] private GameObject actionButtonsGroup;
     [SerializeField] private Button equipButton;
+    [SerializeField] private Button useButton;
     [SerializeField] private Button disenchantButton;
     [SerializeField] private Button sellButton;
     [SerializeField] private Button destroyButton;
@@ -66,6 +67,7 @@ public class ItemInfoPanelUI : MonoBehaviour
     {
         closeButton.onClick.AddListener(Close);
         equipButton.onClick.AddListener(OnEquip);
+        useButton?.onClick.AddListener(OnUseConsumable);
         disenchantButton.onClick.AddListener(OnDisenchant);
         sellButton.onClick.AddListener(OnSell);
         destroyButton.onClick.AddListener(OnDestroyItem);
@@ -80,6 +82,7 @@ public class ItemInfoPanelUI : MonoBehaviour
         if (actionButtonsGroup         != null) actionButtonsGroup.SetActive(true);
         if (craftingActionButtonsGroup != null) craftingActionButtonsGroup.SetActive(false);
         Populate(item);
+        transform.SetAsLastSibling();
         panel.SetActive(true);
     }
 
@@ -90,6 +93,7 @@ public class ItemInfoPanelUI : MonoBehaviour
         if (actionButtonsGroup         != null) actionButtonsGroup.SetActive(false);
         if (craftingActionButtonsGroup != null) craftingActionButtonsGroup.SetActive(true);
         Populate(item);
+        transform.SetAsLastSibling();
         panel.SetActive(true);
     }
 
@@ -108,12 +112,20 @@ public class ItemInfoPanelUI : MonoBehaviour
         // Identity
         if (itemIcon     != null) itemIcon.sprite   = data?.icon;
         if (itemNameText != null) itemNameText.text  = data?.itemName ?? "Unknown";
-        if (levelText    != null) levelText.text     = $"Level  {item.level}";
+        if (levelText    != null) levelText.text     = item.IsStackable ? $"x{item.stackCount}" : $"Level  {item.level}";
         if (categoryText != null) categoryText.text  = data?.category.ToString() ?? "";
         if (slotText     != null) slotText.text      = data?.primarySlot.ToString() ?? "";
 
+        bool isPotion         = data?.category == ItemCategory.Potion;
+        bool isScroll         = data?.category == ItemCategory.Scroll;
+        bool isSpeedUp        = data?.category == ItemCategory.SpeedUp;
         bool isWeaponOrShield = item.IsWeapon || item.IsShield;
         bool isArmor          = data?.category == ItemCategory.Armor;
+
+        if (equipButton      != null) equipButton.gameObject.SetActive(!isPotion && !isScroll && !isSpeedUp);
+        if (useButton        != null) useButton.gameObject.SetActive(isPotion || isSpeedUp);
+        if (disenchantButton != null) disenchantButton.gameObject.SetActive(isPotion);
+        if (sellButton       != null) sellButton.gameObject.SetActive(!isPotion && !isSpeedUp);
 
         // Weapon stats
         if (weaponStatsGroup != null) weaponStatsGroup.SetActive(isWeaponOrShield);
@@ -152,9 +164,96 @@ public class ItemInfoPanelUI : MonoBehaviour
         Close();
     }
 
+    private void OnUseConsumable()
+    {
+        if (_item?.data == null) return;
+        if (_item.data.category == ItemCategory.SpeedUp) { OnUseSpeedUp(); return; }
+        OnUsePotion();
+    }
+
+    private void OnUsePotion()
+    {
+        if (_item?.data == null) return;
+        PlayerStats.Instance?.ApplyPotion(_item.data);
+        if (_item.stackCount > 1)
+        {
+            ItemInventory.Instance?.RemoveOne(_item);
+            Populate(_item);   // refresh count display, keep panel open
+        }
+        else
+        {
+            ItemInventory.Instance?.Remove(_item);
+            Close();
+        }
+    }
+
+    private void OnUseSpeedUp()
+    {
+        if (_item?.data == null) return;
+        int minutes = _item.data.speedUpMinutes > 0 ? _item.data.speedUpMinutes : 1;
+
+        bool applied = false;
+
+        // Try crafting first, then upgrade
+        var craftingUI = CraftingUI.Instance;
+        if (craftingUI != null)
+        {
+            var stationField = typeof(CraftingUI).GetField("_station", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var station = stationField?.GetValue(craftingUI) as CraftingStation;
+            if (station != null && station.ActiveJobs.Count > 0)
+            {
+                station.ApplySpeedUp(minutes);
+                applied = true;
+            }
+        }
+
+        if (!applied && UpgradeJobTracker.IsActive)
+        {
+            UpgradeJobTracker.ApplySpeedUp(minutes);
+            applied = true;
+        }
+
+        if (!applied)
+        {
+            Debug.Log("[SpeedUp] No active crafting or upgrade job to speed up.");
+            return;
+        }
+
+        if (_item.stackCount > 1)
+        {
+            ItemInventory.Instance?.RemoveOne(_item);
+            Populate(_item);
+        }
+        else
+        {
+            ItemInventory.Instance?.Remove(_item);
+            Close();
+        }
+    }
+
     private void OnDisenchant()
     {
         if (_item?.data == null) return;
+
+        var inv = Inventory.Instance;
+        if (inv == null) { Close(); return; }
+
+        if (_item.data.category == ItemCategory.Potion)
+        {
+            PotionRecipe potionRecipe = FindPotionRecipe(_item.data);
+            if (potionRecipe == null)
+            {
+                Debug.LogWarning($"[Disenchant] No potion recipe found for {_item.data.itemName}.");
+                Close();
+                return;
+            }
+            int herbs = Mathf.FloorToInt(potionRecipe.herbCost * 0.5f);
+            if (herbs > 0) inv.Add(ResourceType.Herbs, herbs);
+            Debug.Log($"[Disenchant] {_item.data.itemName} → {herbs}x Herbs");
+            if (_item.stackCount > 1) { ItemInventory.Instance?.RemoveOne(_item); Populate(_item); }
+            else { ItemInventory.Instance?.Remove(_item); Close(); }
+            return;
+        }
 
         CraftingRecipe recipe = FindRecipe(_item.data);
         if (recipe == null)
@@ -163,9 +262,6 @@ public class ItemInfoPanelUI : MonoBehaviour
             Close();
             return;
         }
-
-        var inv = Inventory.Instance;
-        if (inv == null) { Close(); return; }
 
         var returned = new System.Text.StringBuilder();
         foreach (var req in recipe.requirements)
@@ -181,6 +277,14 @@ public class ItemInfoPanelUI : MonoBehaviour
         Close();
     }
 
+    private static PotionRecipe FindPotionRecipe(ItemData item)
+    {
+        if (AlchemyUI.Instance == null) return null;
+        foreach (var r in AlchemyUI.Instance.Recipes)
+            if (r != null && r.output == item) return r;
+        return null;
+    }
+
     private static CraftingRecipe FindRecipe(ItemData item)
     {
         var all = Resources.LoadAll<CraftingRecipe>("Recipes");
@@ -191,16 +295,50 @@ public class ItemInfoPanelUI : MonoBehaviour
 
     private void OnSell()
     {
-        // TODO: wire up to shop / gold system
-        Debug.Log($"[ItemInfo] Sell: {_item?.data?.itemName}");
+        if (_item?.data == null) return;
+
+        if (_item.data.category == ItemCategory.Scroll)
+        {
+            int price = _item.data.sellPrice > 0 ? _item.data.sellPrice : 100;
+            int total = price * _item.stackCount;
+            Inventory.Instance?.Add(ResourceType.Gold, total);
+            ItemInventory.Instance?.Remove(_item);
+            Close();
+            return;
+        }
+
+        // Weapons, shields, armor — return half of crafting resources
+        var inv = Inventory.Instance;
+        if (inv != null)
+        {
+            CraftingRecipe recipe = FindRecipe(_item.data);
+            if (recipe != null)
+            {
+                foreach (var req in recipe.requirements)
+                {
+                    int half = Mathf.FloorToInt(req.amount * 0.5f);
+                    if (half > 0) inv.Add(req.resource, half);
+                }
+            }
+        }
+
+        ItemInventory.Instance?.Remove(_item);
         Close();
     }
 
     private void OnDestroyItem()
     {
         if (_item == null) return;
-        ItemInventory.Instance?.Remove(_item);
-        Close();
+        if (_item.IsStackable && _item.stackCount > 1)
+        {
+            ItemInventory.Instance?.RemoveOne(_item);
+            Populate(_item);   // refresh count, stay open
+        }
+        else
+        {
+            ItemInventory.Instance?.Remove(_item);
+            Close();
+        }
     }
 
     private void OnCraft()

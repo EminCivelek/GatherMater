@@ -27,9 +27,19 @@ public class PlayerStats : MonoBehaviour
     public float hpRegen = 1f;
     public float mpRegen = 1f;
 
+    [Header("Class")]
+    public PlayerClass selectedClass = PlayerClass.None;
+
     public const int MaxLevel = 60;
 
     public event Action OnStatsChanged;
+    public event Action OnClassSelected;
+
+    // ── Class-effective stats ────────────────────────────────────────────
+    public float EffectiveMaxHP   => maxHP   * ClassData.HPMult(selectedClass);
+    public float EffectiveMaxMP   => maxMP;
+    public float EffectiveHPRegen => hpRegen * ClassData.HPRegenMult(selectedClass);
+    public float EffectiveMPRegen => mpRegen * ClassData.MPRegenMult(selectedClass);
 
     void Awake()
     {
@@ -48,8 +58,20 @@ public class PlayerStats : MonoBehaviour
 
     public bool IsMaxLevel => level >= MaxLevel;
 
+    public void SelectClass(PlayerClass cls)
+    {
+        if (cls == PlayerClass.None) return;
+        selectedClass = cls;
+        currentHP = EffectiveMaxHP;
+        currentMP = EffectiveMaxMP;
+        SaveLocal();
+        OnStatsChanged?.Invoke();
+        OnClassSelected?.Invoke();
+    }
+
     public void GainXP(int amount)
     {
+        amount = Mathf.RoundToInt(amount * ClassData.XPMult(selectedClass));
         totalXpFarmed += amount;
 
         if (IsMaxLevel)
@@ -81,8 +103,8 @@ public class PlayerStats : MonoBehaviour
         attackSpeed  += 0.05f;
         hpRegen      += 0.1f;
         mpRegen      += 0.05f;
-        currentHP     = maxHP;
-        currentMP     = maxMP;
+        currentHP     = EffectiveMaxHP;
+        currentMP     = EffectiveMaxMP;
     }
 
     IEnumerator RegenLoop()
@@ -94,9 +116,26 @@ public class PlayerStats : MonoBehaviour
             if (!IsAlive) continue;
 
             bool changed = false;
-            if (currentHP < maxHP) { currentHP = Mathf.Min(currentHP + hpRegen, maxHP); changed = true; }
-            if (currentMP < maxMP) { currentMP = Mathf.Min(currentMP + mpRegen, maxMP); changed = true; }
+            if (currentHP < EffectiveMaxHP) { currentHP = Mathf.Min(currentHP + EffectiveHPRegen, EffectiveMaxHP); changed = true; }
+            if (currentMP < EffectiveMaxMP) { currentMP = Mathf.Min(currentMP + EffectiveMPRegen, EffectiveMaxMP); changed = true; }
             if (changed) OnStatsChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Base player attack damage plus total weapon attack from equipment.
+    /// </summary>
+    // Transient potion bonuses — not saved, reset on scene load / death
+    private float _bonusArmor;
+    private float _bonusAttack;
+    private float _bonusAttackSpeed;
+
+    public float CombinedAttackDamage
+    {
+        get
+        {
+            float weaponAtk = Equipment.Instance?.TotalAttack ?? 0f;
+            return (attackDamage + weaponAtk + _bonusAttack) * ClassData.AttackMult(selectedClass);
         }
     }
 
@@ -109,14 +148,15 @@ public class PlayerStats : MonoBehaviour
         get
         {
             float weaponSpeed = Equipment.Instance?.TotalAttackSpeed ?? 0f;
-            if (weaponSpeed <= 0f) return attackSpeed;
-            return (attackSpeed + weaponSpeed) * 0.5f;
+            float base_ = weaponSpeed <= 0f ? attackSpeed : (attackSpeed + weaponSpeed) * 0.5f;
+            return (base_ + _bonusAttackSpeed) * ClassData.AttackSpeedMult(selectedClass);
         }
     }
 
     public float TakeDamage(float amount)
     {
-        float armor = Equipment.Instance != null ? Equipment.Instance.TotalArmor : 0f;
+        float equipArmor = Equipment.Instance != null ? Equipment.Instance.TotalArmor * ClassData.ArmorMult(selectedClass) : 0f;
+        float armor = equipArmor + _bonusArmor;
         float reduced = amount * (100f / (100f + armor));
         currentHP = Mathf.Max(0f, currentHP - reduced);
         OnStatsChanged?.Invoke();
@@ -134,9 +174,72 @@ public class PlayerStats : MonoBehaviour
 
     public void RestoreFullHP()
     {
-        currentHP = maxHP;
-        currentMP = maxMP;
+        currentHP = EffectiveMaxHP;
+        currentMP = EffectiveMaxMP;
         OnStatsChanged?.Invoke();
+    }
+
+    public void ApplyPotion(ItemData data)
+    {
+        if (data == null) return;
+        switch (data.potionEffect)
+        {
+            case PotionEffect.HealHP:
+                currentHP = Mathf.Min(currentHP + data.potionEffectAmount, maxHP);
+                OnStatsChanged?.Invoke();
+                break;
+            case PotionEffect.HealMP:
+                currentMP = Mathf.Min(currentMP + data.potionEffectAmount, maxMP);
+                OnStatsChanged?.Invoke();
+                break;
+            case PotionEffect.BoostHPRegen:
+                StartCoroutine(TemporaryRegen(true,  data.potionEffectAmount, data.potionDuration));
+                break;
+            case PotionEffect.BoostMPRegen:
+                StartCoroutine(TemporaryRegen(false, data.potionEffectAmount, data.potionDuration));
+                break;
+            case PotionEffect.BoostArmor:
+                StartCoroutine(TemporaryStatBoost(PotionEffect.BoostArmor,        data.potionEffectAmount, data.potionDuration));
+                break;
+            case PotionEffect.BoostAttack:
+                StartCoroutine(TemporaryStatBoost(PotionEffect.BoostAttack,       data.potionEffectAmount, data.potionDuration));
+                break;
+            case PotionEffect.BoostAttackSpeed:
+                StartCoroutine(TemporaryStatBoost(PotionEffect.BoostAttackSpeed,  data.potionEffectAmount, data.potionDuration));
+                break;
+        }
+    }
+
+    private IEnumerator TemporaryRegen(bool isHP, float amount, float duration)
+    {
+        if (isHP) hpRegen += amount;
+        else      mpRegen += amount;
+        OnStatsChanged?.Invoke();
+
+        yield return new WaitForSeconds(duration);
+
+        if (isHP) hpRegen -= amount;
+        else      mpRegen -= amount;
+        OnStatsChanged?.Invoke();
+    }
+
+    private IEnumerator TemporaryStatBoost(PotionEffect stat, float amount, float duration)
+    {
+        ApplyStatDelta(stat,  amount);
+        OnStatsChanged?.Invoke();
+        yield return new WaitForSeconds(duration);
+        ApplyStatDelta(stat, -amount);
+        OnStatsChanged?.Invoke();
+    }
+
+    private void ApplyStatDelta(PotionEffect stat, float delta)
+    {
+        switch (stat)
+        {
+            case PotionEffect.BoostArmor:        _bonusArmor        += delta; break;
+            case PotionEffect.BoostAttack:       _bonusAttack       += delta; break;
+            case PotionEffect.BoostAttackSpeed:  _bonusAttackSpeed  += delta; break;
+        }
     }
 
     public bool IsAlive => currentHP > 0f;
@@ -155,6 +258,7 @@ public class PlayerStats : MonoBehaviour
         PlayerPrefs.SetFloat("PS_attackSpeed",  attackSpeed);
         PlayerPrefs.SetFloat("PS_hpRegen",      hpRegen);
         PlayerPrefs.SetFloat("PS_mpRegen",      mpRegen);
+        PlayerPrefs.SetInt("PS_class",          (int)selectedClass);
         PlayerPrefs.SetString("PS_saveTime",    DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
         PlayerPrefs.Save();
     }
@@ -170,6 +274,7 @@ public class PlayerStats : MonoBehaviour
         attackSpeed  = PlayerPrefs.GetFloat("PS_attackSpeed",  1f);
         hpRegen      = PlayerPrefs.GetFloat("PS_hpRegen",      1f);
         mpRegen      = PlayerPrefs.GetFloat("PS_mpRegen",      1f);
+        selectedClass = (PlayerClass)PlayerPrefs.GetInt("PS_class", (int)PlayerClass.None);
         currentHP    = PlayerPrefs.GetFloat("PS_currentHP",    maxHP);
         currentMP    = PlayerPrefs.GetFloat("PS_currentMP",    maxMP);
 

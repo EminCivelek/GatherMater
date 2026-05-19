@@ -1,14 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 public class IsometricPlayerController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float   moveSpeed = 5f;
+    [SerializeField] private Tilemap walkableTilemap;
 
-    private Rigidbody2D rb;
-    private Animator animator;
+    // How far inside the tilemap edge the player must stay (world units)
+    // How far ahead of the player to sample the tile (world units) — acts like a body radius
+    private const float LookAhead = 0.3f;
+
+    private Rigidbody2D     rb;
+    private Animator        animator;
     private VirtualJoystick joystick;
 
     // Animator parameter names matching elf_fighter.controller
@@ -28,11 +35,25 @@ public class IsometricPlayerController : MonoBehaviour
         rb       = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        rb.gravityScale  = 0f;
+        rb.gravityScale   = 0f;
         rb.freezeRotation = true;
 
         joystick = FindAnyObjectByType<VirtualJoystick>();
+
+        if (walkableTilemap == null)
+            walkableTilemap = FindAnyObjectByType<Tilemap>();
     }
+
+    private void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        joystick = FindAnyObjectByType<VirtualJoystick>();
+        if (walkableTilemap == null || !walkableTilemap)
+            walkableTilemap = FindAnyObjectByType<Tilemap>();
+    }
+
 
     // Animator runs on Update cadence — update it here, not in FixedUpdate
     private void Update()
@@ -52,8 +73,25 @@ public class IsometricPlayerController : MonoBehaviour
     // Physics on FixedUpdate cadence — uses input cached in Update
     private void FixedUpdate()
     {
-        Vector2 moveDir = new Vector2(_cachedInput.x, _cachedInput.y * 0.5f);
-        rb.linearVelocity = moveDir.normalized * (_isMoving ? moveSpeed : 0f);
+        if (!_isMoving) { rb.linearVelocity = Vector2.zero; return; }
+
+        Vector2 vel = new Vector2(_cachedInput.x, _cachedInput.y * 0.5f).normalized * moveSpeed;
+
+        // Per-axis tile check: sample LookAhead units ahead on each axis independently
+        // so the player can slide along tile borders instead of stopping dead
+        if (walkableTilemap != null)
+        {
+            if (!HasTileAt(rb.position + new Vector2(Mathf.Sign(vel.x) * LookAhead, 0f))) vel.x = 0f;
+            if (!HasTileAt(rb.position + new Vector2(0f, Mathf.Sign(vel.y) * LookAhead))) vel.y = 0f;
+        }
+
+        rb.linearVelocity = vel;
+    }
+
+    private bool HasTileAt(Vector2 worldPos)
+    {
+        Vector3Int cell = walkableTilemap.WorldToCell(new Vector3(worldPos.x, worldPos.y, 0f));
+        return walkableTilemap.HasTile(cell);
     }
 
     private Vector2 ReadInput()

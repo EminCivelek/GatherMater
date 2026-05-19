@@ -76,6 +76,7 @@ public class Equipment : MonoBehaviour
     {
         if (item?.data == null) return false;
         if (slot == EquipSlot.OffHand && IsOffHandLocked) return false;
+        if (UpgradeJobTracker.IsBeingUpgraded(item.instanceId)) return false;
 
         return item.data.category switch
         {
@@ -116,6 +117,13 @@ public class Equipment : MonoBehaviour
         OnEquipmentChanged?.Invoke();
     }
 
+    /// <summary>Call after directly mutating an equipped ItemInstance (e.g. upgrade).</summary>
+    public void OnItemUpgraded()
+    {
+        Save();
+        OnEquipmentChanged?.Invoke();
+    }
+
     // ── Private helpers ───────────────────────────────────────────────────────────
     private float WeaponStat(Func<ItemData, float> selector)
     {
@@ -134,7 +142,11 @@ public class Equipment : MonoBehaviour
     {
         var wrapper = new SaveWrapper { slots = new List<SlotSaveData>() };
         foreach (var kvp in _equipped)
-            wrapper.slots.Add(new SlotSaveData { slot = kvp.Key, itemDataId = kvp.Value.itemDataId, level = kvp.Value.level });
+        {
+            if (string.IsNullOrEmpty(kvp.Value.instanceId))
+                kvp.Value.instanceId = Guid.NewGuid().ToString("N");
+            wrapper.slots.Add(new SlotSaveData { slot = kvp.Key, instanceId = kvp.Value.instanceId, itemDataId = kvp.Value.itemDataId, level = kvp.Value.level });
+        }
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
         PlayerPrefs.Save();
     }
@@ -149,26 +161,34 @@ public class Equipment : MonoBehaviour
         {
             var data = ItemDatabase.Instance?.FindById(s.itemDataId);
             if (data == null) continue;
-            _equipped[s.slot] = new ItemInstance { itemDataId = s.itemDataId, level = s.level, data = data };
+            _equipped[s.slot] = new ItemInstance
+            {
+                instanceId = string.IsNullOrEmpty(s.instanceId) ? Guid.NewGuid().ToString("N") : s.instanceId,
+                itemDataId = s.itemDataId,
+                level      = s.level,
+                data       = data
+            };
         }
     }
 
     // ── Cloud sync ───────────────────────────────────────────────────────
-    public (List<string> slots, List<string> ids, List<int> levels) GetCloudData()
+    public (List<string> slots, List<string> ids, List<int> levels, List<string> instanceIds) GetCloudData()
     {
-        var slots  = new List<string>();
-        var ids    = new List<string>();
-        var levels = new List<int>();
+        var slots       = new List<string>();
+        var ids         = new List<string>();
+        var levels      = new List<int>();
+        var instanceIds = new List<string>();
         foreach (var kv in _equipped)
         {
             slots.Add(kv.Key.ToString());
             ids.Add(kv.Value.itemDataId);
             levels.Add(kv.Value.level);
+            instanceIds.Add(string.IsNullOrEmpty(kv.Value.instanceId) ? Guid.NewGuid().ToString("N") : kv.Value.instanceId);
         }
-        return (slots, ids, levels);
+        return (slots, ids, levels, instanceIds);
     }
 
-    public void ApplyCloudData(List<string> slots, List<string> ids, List<int> levels)
+    public void ApplyCloudData(List<string> slots, List<string> ids, List<int> levels, List<string> instanceIds = null)
     {
         _equipped.Clear();
         for (int i = 0; i < slots.Count; i++)
@@ -176,12 +196,14 @@ public class Equipment : MonoBehaviour
             if (!Enum.TryParse<EquipSlot>(slots[i], out var slot)) continue;
             var data = ItemDatabase.Instance?.FindById(ids[i]);
             if (data == null) continue;
-            _equipped[slot] = new ItemInstance { itemDataId = ids[i], level = levels[i], data = data };
+            string iid = (instanceIds != null && i < instanceIds.Count && !string.IsNullOrEmpty(instanceIds[i]))
+                ? instanceIds[i] : Guid.NewGuid().ToString("N");
+            _equipped[slot] = new ItemInstance { instanceId = iid, itemDataId = ids[i], level = levels[i], data = data };
         }
         Save();
         OnEquipmentChanged?.Invoke();
     }
 
-    [Serializable] private class SlotSaveData  { public EquipSlot slot; public string itemDataId; public int level; }
+    [Serializable] private class SlotSaveData  { public EquipSlot slot; public string instanceId; public string itemDataId; public int level; }
     [Serializable] private class SaveWrapper   { public List<SlotSaveData> slots; }
 }

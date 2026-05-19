@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -11,10 +12,14 @@ public class InteractionButton : MonoBehaviour
 
     private PlayerInteraction playerInteraction;
 
-    private void Start()
+    private IEnumerator Start()
     {
+        // Wait one frame so any Destroy() calls from duplicate-singleton cleanup execute
+        // before we search — ensures we bind to the persistent DontDestroyOnLoad player.
+        yield return null;
+
         playerInteraction = FindAnyObjectByType<PlayerInteraction>();
-        if (playerInteraction == null) return;
+        if (playerInteraction == null) yield break;
 
         playerInteraction.OnInteractableChanged += UpdateButton;
         playerInteraction.OnGatherStarted       += OnGatherStarted;

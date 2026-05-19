@@ -10,21 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9898047dfdd364346a526f2544ff3349, type: 3}
-  m_Name: Goblins
+  m_Name: 2 Worms
   m_EditorClassIdentifier: Assembly-CSharp::MobConfig
-  mobName: Goblin
-  mobSprite: {fileID: -3757547826733318397, guid: 2f85a1a3bd3e59d44a90b9686fa95b05, type: 3}
-  maxHP: 200
-  attackDamage: 15
-  attackSpeed: 1.2
-  xpReward: 50
+  mobName: Worm
+  mobSprite: {fileID: -7397340389886535319, guid: 2969125f65654394fa87ab8dc8bec383, type: 3}
+  maxHP: 100
+  attackDamage: 10
+  attackSpeed: 1
+  xpReward: 35
   drops:
-  - type: 2
+  - type: 1
     dropChance: 100
-    baseAmount: 10
-    randomExtra: 5
+    baseAmount: 5
+    randomExtra: 2
   - type: 4
     dropChance: 3
     baseAmount: 3
-    randomExtra: 3
-  scrollDrops: []
+    randomExtra: 2
+  scrollDrops:
+  - type: 0
+    dropChance: 15
+  itemDrops:
+  - item: {fileID: 11400000, guid: 3f0e7697d120bd54aa3e1e409234af18, type: 2}
+    dropChance: 1

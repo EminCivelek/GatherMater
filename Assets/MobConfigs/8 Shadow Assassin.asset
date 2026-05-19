@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9898047dfdd364346a526f2544ff3349, type: 3}
+  m_Name: 8 Shadow Assassin
+  m_EditorClassIdentifier: Assembly-CSharp::MobConfig
+  mobName: Shadow Assassin
+  mobSprite: {fileID: -3398425601533472082, guid: 763b971291c98e84585d3da4a6365379, type: 3}
+  maxHP: 980
+  attackDamage: 64
+  attackSpeed: 1.6
+  xpReward: 500
+  drops:
+  - type: 2
+    dropChance: 90
+    baseAmount: 20
+    randomExtra: 8
+  scrollDrops:
+  - type: 2
+    dropChance: 10
+  itemDrops:
+  - item: {fileID: 11400000, guid: 3f0e7697d120bd54aa3e1e409234af18, type: 2}
+    dropChance: 1

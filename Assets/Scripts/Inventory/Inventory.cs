@@ -16,6 +16,9 @@ public class Inventory : MonoBehaviour
     /// <summary>Fires with (resourceType, newCount) whenever a resource amount changes.</summary>
     public event Action<ResourceType, int> OnResourceChanged;
 
+    /// <summary>Fires with (resourceType, amountAdded) when resources are successfully added.</summary>
+    public event Action<ResourceType, int> OnResourceAdded;
+
     public int Capacity   { get; private set; } = 1000;
     public int TotalCount => GetTotalCount();
 
@@ -63,6 +66,7 @@ public class Inventory : MonoBehaviour
         if (canAdd <= 0) return 0;
         _items[type] += canAdd;
         OnResourceChanged?.Invoke(type, _items[type]);
+        OnResourceAdded?.Invoke(type, canAdd);
         return canAdd;
     }
 

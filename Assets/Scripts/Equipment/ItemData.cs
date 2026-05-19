@@ -36,6 +36,36 @@ public class ItemData : ScriptableObject
     public float baseArmor;
     public float armorPerLevel;
 
+    [Header("Upgrade")]
+    public ItemTier itemTier;
+
+    public int MaxUpgradeLevel => itemTier switch
+    {
+        ItemTier.Wooden      => 5,
+        ItemTier.Iron        => 10,
+        ItemTier.Steel       => 15,
+        ItemTier.RizeanSteel => 21,
+        _                    => 10
+    };
+
+    // Returns 0–1 success chance for upgrading TO targetLevel.
+    // Curve: –7% per level, floored at 5%.
+    public static float GetUpgradeSuccessRate(int targetLevel) =>
+        Mathf.Clamp(1f - (targetLevel - 1) * 0.07f, 0.05f, 1f);
+
+    [Header("Sell")]
+    public int sellPrice;
+
+    [Header("Speed Up")]
+    [Tooltip("Minutes to cut from an active crafting or upgrade job. Only used for SpeedUp category items.")]
+    public int speedUpMinutes = 1;
+
+    [Header("Potion")]
+    public PotionEffect potionEffect;
+    public float        potionEffectAmount;
+    [Tooltip("0 = instant. Timed effects boost regen for this many seconds.")]
+    public float        potionDuration;
+
     // ── Stat getters ──────────────────────────────────────────────────────────────
     public float GetAttack(int level)      => baseAttack      + (level - 1) * attackPerLevel;
     public float GetAttackSpeed(int level) => baseAttackSpeed + (level - 1) * attackSpeedPerLevel;

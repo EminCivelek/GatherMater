@@ -41,6 +41,11 @@ public class BuildingCollectUI : MonoBehaviour
         panel.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     private void Start() => _player = FindAnyObjectByType<IsometricPlayerController>();
 
     private void Update()
@@ -53,6 +58,10 @@ public class BuildingCollectUI : MonoBehaviour
     // ── Public API ────────────────────────────────────────────────────────────────
     public void Open(ProducerBuilding building)
     {
+        EquipmentUI.Instance?.Close();
+        LeaderboardUI.Instance?.Close();
+        DailyMissionBoardUI.Instance?.Close();
+
         _current = building;
         panel.SetActive(true);
         Refresh();

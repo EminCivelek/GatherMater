@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94d7c18b55246aa43836d7a566a42bc0, type: 3}
-  m_Name: WheatBuildingConfig
+  m_Name: HerbsBuildingConfig
   m_EditorClassIdentifier: Assembly-CSharp::BuildingConfig
-  buildingName: Wheat Producer
-  icon: {fileID: -7520020149588888064, guid: 4189209dc5ebac542a8c0aaac9ca6038, type: 3}
+  buildingName: Herbs Producer
+  icon: {fileID: -6342664345372118771, guid: 63086222c2df672419e8edf999aa7fed, type: 3}
   resourceType: 3
   tiers:
   - produceRatePerMinute: 15
@@ -41,4 +41,44 @@ MonoBehaviour:
       amount: 150
   - produceRatePerMinute: 70
     storageCap: 800
+    upgradeCost:
+    - resource: 0
+      amount: 600
+    - resource: 1
+      amount: 600
+    - resource: 2
+      amount: 250
+    - resource: 4
+      amount: 150
+  - produceRatePerMinute: 95
+    storageCap: 1425
+    upgradeCost:
+    - resource: 0
+      amount: 900
+    - resource: 1
+      amount: 900
+    - resource: 2
+      amount: 450
+    - resource: 4
+      amount: 300
+  - produceRatePerMinute: 125
+    storageCap: 2500
+    upgradeCost:
+    - resource: 4
+      amount: 600
+    - resource: 0
+      amount: 1200
+    - resource: 2
+      amount: 700
+  - produceRatePerMinute: 160
+    storageCap: 4800
+    upgradeCost:
+    - resource: 4
+      amount: 1000
+    - resource: 5
+      amount: 100
+    - resource: 2
+      amount: 1000
+  - produceRatePerMinute: 200
+    storageCap: 7200
     upgradeCost: []

@@ -34,7 +34,7 @@ public class ItemSlotUI : MonoBehaviour
             itemIcon.sprite = item.data?.icon;
         }
         if (emptyBackground != null) emptyBackground.gameObject.SetActive(false);
-        if (levelText   != null) levelText.text   = $"Lv{item.level}";
+        if (levelText   != null) levelText.text   = item.IsStackable ? $"x{item.stackCount}" : $"Lv{item.level}";
         if (itemNameText != null) itemNameText.text = item.data?.itemName ?? "";
 
         button.interactable = true;

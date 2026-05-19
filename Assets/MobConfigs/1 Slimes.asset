@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9898047dfdd364346a526f2544ff3349, type: 3}
-  m_Name: Slimes
+  m_Name: 1 Slimes
   m_EditorClassIdentifier: Assembly-CSharp::MobConfig
   mobName: Slime
   mobSprite: {fileID: 3289746386871190155, guid: b6d433cb234673c4b80a1406d2ec3e8e, type: 3}
@@ -27,4 +27,9 @@ MonoBehaviour:
     dropChance: 3
     baseAmount: 3
     randomExtra: 2
-  scrollDrops: []
+  scrollDrops:
+  - type: 0
+    dropChance: 10
+  itemDrops:
+  - item: {fileID: 11400000, guid: 3f0e7697d120bd54aa3e1e409234af18, type: 2}
+    dropChance: 1

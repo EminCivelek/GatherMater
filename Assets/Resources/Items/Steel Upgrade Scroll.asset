@@ -28,3 +28,9 @@ MonoBehaviour:
   onHitMPRecovery: 0
   baseArmor: 0
   armorPerLevel: 0
+  itemTier: 2
+  sellPrice: 300
+  speedUpMinutes: 1
+  potionEffect: 0
+  potionEffectAmount: 0
+  potionDuration: 0

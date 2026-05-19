@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GoldBuildingConfig
   m_EditorClassIdentifier: Assembly-CSharp::BuildingConfig
   buildingName: Gold Miners
-  icon: {fileID: -7520020149588888064, guid: 4189209dc5ebac542a8c0aaac9ca6038, type: 3}
+  icon: {fileID: 7861697862686332542, guid: 0a2df77f76f29e7459f8c4449f839660, type: 3}
   resourceType: 2
   tiers:
   - produceRatePerMinute: 10
@@ -39,4 +39,44 @@ MonoBehaviour:
       amount: 750
   - produceRatePerMinute: 42
     storageCap: 475
+    upgradeCost:
+    - resource: 2
+      amount: 800
+    - resource: 0
+      amount: 600
+    - resource: 1
+      amount: 400
+    - resource: 4
+      amount: 150
+  - produceRatePerMinute: 55
+    storageCap: 825
+    upgradeCost:
+    - resource: 2
+      amount: 1200
+    - resource: 0
+      amount: 1000
+    - resource: 1
+      amount: 600
+    - resource: 4
+      amount: 300
+  - produceRatePerMinute: 72
+    storageCap: 1440
+    upgradeCost:
+    - resource: 4
+      amount: 600
+    - resource: 2
+      amount: 1800
+    - resource: 0
+      amount: 1200
+  - produceRatePerMinute: 90
+    storageCap: 2700
+    upgradeCost:
+    - resource: 4
+      amount: 1000
+    - resource: 5
+      amount: 150
+    - resource: 2
+      amount: 2500
+  - produceRatePerMinute: 110
+    storageCap: 3960
     upgradeCost: []

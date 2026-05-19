@@ -46,8 +46,9 @@ public class CombatManager : MonoBehaviour
 
         _playerAttackTimer = 1f / PlayerStats.Instance.CombinedAttackSpeed;
         _totalXPGained = 0;
-        LastDrops = new();
+        LastDrops       = new();
         LastScrollDrops = new();
+        LastItemDrops   = new();
         _fightActive = true;
         StartCoroutine(CombatLoop());
     }
@@ -67,7 +68,7 @@ public class CombatManager : MonoBehaviour
                 MobInstance target = Mobs.Find(m => m.IsAlive);
                 if (target != null)
                 {
-                    float dmg = PlayerStats.Instance.attackDamage;
+                    float dmg = PlayerStats.Instance.CombinedAttackDamage;
                     target.CurrentHP = Mathf.Max(0f, target.CurrentHP - dmg);
                     OnCombatLog?.Invoke($"You hit {target.Config.mobName} for {dmg:F0} dmg.");
 
@@ -77,6 +78,7 @@ public class CombatManager : MonoBehaviour
                         _totalXPGained += xp;
                         PlayerStats.Instance.GainXP(xp);
                         OnCombatLog?.Invoke($"{target.Config.mobName} died! +{xp} XP");
+                        DailyMissionManager.Instance?.ReportKill();
                     }
                 }
             }
@@ -112,6 +114,7 @@ public class CombatManager : MonoBehaviour
                 LastXPGained = _totalXPGained;
                 RollAndCollectDrops();
                 OnCombatLog?.Invoke($"Victory! Total XP gained: {_totalXPGained}.");
+                DailyMissionManager.Instance?.ReportCombatComplete();
                 OnCombatEnd?.Invoke();
             }
         }
@@ -167,6 +170,28 @@ public class CombatManager : MonoBehaviour
                 ItemInventory.Instance?.Add(new ItemInstance { itemDataId = itemName, level = 1, data = data });
             LastScrollDrops.Add((pair.Key, pair.Value));
         }
+
+        // Item drops (e.g. Speed Up) — one chance per mob per entry
+        LastItemDrops = new();
+        var itemTotals = new System.Collections.Generic.Dictionary<string, (ItemData data, int count)>();
+        foreach (var mob in Mobs)
+        {
+            foreach (var drop in mob.Config.itemDrops)
+            {
+                if (drop.item == null || !drop.Roll()) continue;
+                string id = drop.item.name;
+                itemTotals.TryGetValue(id, out var existing);
+                itemTotals[id] = (drop.item, existing.count + 1);
+            }
+        }
+        foreach (var pair in itemTotals)
+        {
+            var data = pair.Value.data;
+            int count = pair.Value.count;
+            for (int i = 0; i < count; i++)
+                ItemInventory.Instance?.Add(new ItemInstance { itemDataId = data.name, level = 1, data = data });
+            LastItemDrops.Add((data.itemName, count));
+        }
     }
 
     static string ScrollItemName(ScrollType type) => type switch
@@ -179,8 +204,9 @@ public class CombatManager : MonoBehaviour
     };
 
     public int LastXPGained { get; private set; }
-    public List<(ResourceType type, int amount)> LastDrops { get; private set; } = new();
-    public List<(ScrollType type, int amount)> LastScrollDrops { get; private set; } = new();
+    public List<(ResourceType type, int amount)>  LastDrops      { get; private set; } = new();
+    public List<(ScrollType type, int amount)>    LastScrollDrops { get; private set; } = new();
+    public List<(string itemName, int amount)>    LastItemDrops   { get; private set; } = new();
 
     public bool IsFighting => _fightActive;
     public bool PlayerWon  => _fightActive == false && PlayerStats.Instance.IsAlive;

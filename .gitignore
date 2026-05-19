@@ -19,6 +19,9 @@ Assets/AssetBundleData/
 # Screenshots
 Assets/Screenshots/
 
+# Recovery
+Assets/_Recovery/
+
 # Crash reports
 sysinfo.txt
 Crashes/

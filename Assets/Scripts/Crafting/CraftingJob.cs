@@ -32,4 +32,10 @@ public class CraftingJob
 
     public bool IsComplete(float duration) =>
         (DateTime.UtcNow - StartTime).TotalSeconds >= duration;
+
+    /// <summary>Push the start time back so the job appears further along.</summary>
+    public void SpeedUp(int minutes)
+    {
+        startTimeTicks -= TimeSpan.FromMinutes(minutes).Ticks;
+    }
 }

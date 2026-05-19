@@ -13,24 +13,24 @@ MonoBehaviour:
   m_Name: StoneBuildingConfig
   m_EditorClassIdentifier: Assembly-CSharp::BuildingConfig
   buildingName: Stone Miners
-  icon: {fileID: -7520020149588888064, guid: 4189209dc5ebac542a8c0aaac9ca6038, type: 3}
+  icon: {fileID: -1550738866650020055, guid: 23d20f696ca88a14683fdf952764b505, type: 3}
   resourceType: 1
   tiers:
-  - produceRatePerMinute: 25
+  - produceRatePerMinute: 15
     storageCap: 250
     upgradeCost:
     - resource: 2
       amount: 80
     - resource: 0
       amount: 120
-  - produceRatePerMinute: 50
+  - produceRatePerMinute: 20
     storageCap: 400
     upgradeCost:
     - resource: 2
       amount: 120
     - resource: 0
       amount: 180
-  - produceRatePerMinute: 80
+  - produceRatePerMinute: 35
     storageCap: 850
     upgradeCost:
     - resource: 2
@@ -39,6 +39,42 @@ MonoBehaviour:
       amount: 180
     - resource: 1
       amount: 180
-  - produceRatePerMinute: 80
+  - produceRatePerMinute: 50
     storageCap: 850
+    upgradeCost:
+    - resource: 2
+      amount: 300
+    - resource: 0
+      amount: 450
+    - resource: 4
+      amount: 200
+  - produceRatePerMinute: 70
+    storageCap: 1750
+    upgradeCost:
+    - resource: 2
+      amount: 500
+    - resource: 0
+      amount: 700
+    - resource: 4
+      amount: 400
+  - produceRatePerMinute: 90
+    storageCap: 3150
+    upgradeCost:
+    - resource: 4
+      amount: 700
+    - resource: 2
+      amount: 800
+    - resource: 0
+      amount: 900
+  - produceRatePerMinute: 115
+    storageCap: 5750
+    upgradeCost:
+    - resource: 4
+      amount: 1200
+    - resource: 5
+      amount: 150
+    - resource: 2
+      amount: 1000
+  - produceRatePerMinute: 145
+    storageCap: 8700
     upgradeCost: []

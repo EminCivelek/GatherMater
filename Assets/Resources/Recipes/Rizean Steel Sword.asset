@@ -21,4 +21,5 @@ MonoBehaviour:
     amount: 1000
   - resource: 4
     amount: 250
+  goldCost: 400
   craftDuration: 120

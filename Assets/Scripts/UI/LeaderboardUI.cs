@@ -32,8 +32,9 @@ public class LeaderboardUI : MonoBehaviour
     const string BOARD_POWER_SCORE = "power-score";
     const string BOARD_TOTAL_XP    = "total-xp";
 
-    string _currentBoard = BOARD_POWER_SCORE;
-    bool   _isFetching;
+    string     _currentBoard = BOARD_POWER_SCORE;
+    bool       _isFetching;
+    GameObject _overlay;
 
     void Awake()
     {
@@ -49,14 +50,46 @@ public class LeaderboardUI : MonoBehaviour
         panel.SetActive(false);
     }
 
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
     // ── Open / Close ──────────────────────────────────────────────────────
     public void Open()
     {
+        CraftingUI.Instance?.Close();
+        AlchemyUI.Instance?.Close();
+        UpgradeAnvilUI.Instance?.Close();
+        EquipmentUI.Instance?.Close();
+        DailyMissionBoardUI.Instance?.Close();
+
+        EnsureOverlay();
+        _overlay.SetActive(true);
+        _overlay.transform.SetAsLastSibling();
+        transform.SetAsLastSibling();
         panel.SetActive(true);
         SwitchBoard(BOARD_POWER_SCORE);
     }
 
-    public void Close() => panel.SetActive(false);
+    public void Close()
+    {
+        if (_overlay != null) _overlay.SetActive(false);
+        panel.SetActive(false);
+    }
+
+    void EnsureOverlay()
+    {
+        if (_overlay != null) return;
+        _overlay = new GameObject("CloseOverlay");
+        _overlay.transform.SetParent(transform.parent, false);
+        var rt = _overlay.AddComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.sizeDelta = Vector2.zero;
+        var img = _overlay.AddComponent<Image>(); img.color = Color.clear;
+        var btn = _overlay.AddComponent<Button>(); btn.targetGraphic = img;
+        btn.onClick.AddListener(Close);
+        _overlay.SetActive(false);
+    }
 
     // ── Tab switching ─────────────────────────────────────────────────────
     void SwitchBoard(string boardId)

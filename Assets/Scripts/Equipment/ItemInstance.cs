@@ -8,10 +8,16 @@ using UnityEngine;
 [Serializable]
 public class ItemInstance
 {
+    public string instanceId;   // unique per item, generated on first save
     public string itemDataId;
-    public int    level = 1;
+    public int    level      = 1;
+    public int    stackCount = 1;   // >1 only for stackable categories (Scroll, Potion)
 
     [NonSerialized] public ItemData data;
+
+    public bool IsStackable => data?.category == ItemCategory.Scroll
+                            || data?.category == ItemCategory.Potion
+                            || data?.category == ItemCategory.SpeedUp;
 
     // ── Stat getters ──────────────────────────────────────────────────────────────
     public float GetAttack()      => data?.GetAttack(level)      ?? 0f;
