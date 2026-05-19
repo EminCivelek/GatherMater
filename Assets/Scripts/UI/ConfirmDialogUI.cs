@@ -63,6 +63,7 @@ public class ConfirmDialogUI : MonoBehaviour
         }
 
         panel.SetActive(true);
+        transform.SetAsLastSibling();
         LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
     }
 
@@ -76,6 +77,7 @@ public class ConfirmDialogUI : MonoBehaviour
         if (dontShowAgainRow != null) dontShowAgainRow.SetActive(false);
         _onConfirm        = null;
         panel.SetActive(true);
+        transform.SetAsLastSibling();
         LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
     }
 

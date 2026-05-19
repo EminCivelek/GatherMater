@@ -49,9 +49,9 @@ public class ItemData : ScriptableObject
     };
 
     // Returns 0–1 success chance for upgrading TO targetLevel.
-    // Curve: –7% per level, floored at 5%.
+    // Curve: –4.75% per level, floored at 5% (reached at +20→+21).
     public static float GetUpgradeSuccessRate(int targetLevel) =>
-        Mathf.Clamp(1f - (targetLevel - 1) * 0.07f, 0.05f, 1f);
+        Mathf.Clamp(1f - (targetLevel - 1) * 0.0475f, 0.05f, 1f);
 
     [Header("Sell")]
     public int sellPrice;

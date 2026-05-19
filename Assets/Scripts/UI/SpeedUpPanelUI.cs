@@ -48,6 +48,7 @@ public class SpeedUpPanelUI : MonoBehaviour
         _onApply      = onApply;
         _selectedItem = null;
         panel.SetActive(true);
+        transform.SetAsLastSibling();
         BuildList();
         RefreshButton();
     }

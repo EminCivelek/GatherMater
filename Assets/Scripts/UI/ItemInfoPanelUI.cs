@@ -84,6 +84,7 @@ public class ItemInfoPanelUI : MonoBehaviour
         Populate(item);
         transform.SetAsLastSibling();
         panel.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
     }
 
     public void OpenForCraft(ItemInstance item, Action onCraft)
@@ -95,6 +96,7 @@ public class ItemInfoPanelUI : MonoBehaviour
         Populate(item);
         transform.SetAsLastSibling();
         panel.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(panel.transform as RectTransform);
     }
 
     public void Close()
