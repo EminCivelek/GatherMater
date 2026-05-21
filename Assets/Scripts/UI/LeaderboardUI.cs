@@ -63,6 +63,7 @@ public class LeaderboardUI : MonoBehaviour
         UpgradeAnvilUI.Instance?.Close();
         EquipmentUI.Instance?.Close();
         DailyMissionBoardUI.Instance?.Close();
+        DuelUI.Instance?.Close();
 
         EnsureOverlay();
         _overlay.SetActive(true);

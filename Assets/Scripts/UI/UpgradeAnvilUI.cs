@@ -88,6 +88,7 @@ public class UpgradeAnvilUI : MonoBehaviour
         EquipmentUI.Instance?.Close();
         LeaderboardUI.Instance?.Close();
         DailyMissionBoardUI.Instance?.Close();
+        DuelUI.Instance?.Close();
 
         _anvil                  = anvil;
         _selectedItem           = null;

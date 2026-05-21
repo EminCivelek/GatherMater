@@ -74,6 +74,7 @@ public class CraftingUI : MonoBehaviour
         EquipmentUI.Instance?.Close();
         LeaderboardUI.Instance?.Close();
         DailyMissionBoardUI.Instance?.Close();
+        DuelUI.Instance?.Close();
 
         if (_station != null) _station.OnJobsChanged -= OnJobsChanged;
 
@@ -139,7 +140,11 @@ public class CraftingUI : MonoBehaviour
         if (selectionPanel           != null) selectionPanel.SetActive(true);
         if (selectedIcon             != null) selectedIcon.sprite             = recipe.icon;
         if (selectedNameText         != null) selectedNameText.text           = recipe.displayName;
-        if (selectedRequirementsText != null) selectedRequirementsText.text   = recipe.GetRequirementsText();
+        if (selectedRequirementsText != null)
+        {
+            selectedRequirementsText.text = BuildRequirementsDetail(recipe);
+            selectedRequirementsText.color = new Color(0.9f, 0.9f, 0.9f);
+        }
         if (selectedStatsText        != null) selectedStatsText.text          = BuildStatsText(recipe);
         if (selectedDurationText     != null) selectedDurationText.text       = $"Time:  {FormatTime(recipe.craftDuration)}";
 
@@ -186,6 +191,26 @@ public class CraftingUI : MonoBehaviour
         if (jobNameText    != null) jobNameText.text     = recipe.displayName;
         if (jobProgressBar != null) jobProgressBar.value = job.GetProgress(recipe.craftDuration);
         if (jobTimeText    != null) jobTimeText.text     = FormatTime(job.GetRemainingSeconds(recipe.craftDuration));
+    }
+
+    private static string BuildRequirementsDetail(CraftingRecipe recipe)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var req in recipe.requirements)
+        {
+            if (sb.Length > 0) sb.Append('\n');
+            bool have = Inventory.Instance != null && Inventory.Instance.Has(req.resource, req.amount);
+            string color = have ? "#88FF88" : "#FF6666";
+            sb.Append($"<color={color}>• {req.amount}x {req.resource}</color>");
+        }
+        if (recipe.goldCost > 0)
+        {
+            if (sb.Length > 0) sb.Append('\n');
+            bool have = Inventory.Instance != null && Inventory.Instance.Has(ResourceType.Gold, recipe.goldCost);
+            string color = have ? "#88FF88" : "#FF6666";
+            sb.Append($"<color={color}>• {recipe.goldCost}x Gold</color>");
+        }
+        return sb.ToString();
     }
 
     private static string BuildStatsText(CraftingRecipe recipe)

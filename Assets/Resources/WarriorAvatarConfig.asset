@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d62614bc87bd84cbe3fabbcb374673, type: 3}
+  m_Name: WarriorAvatarConfig
+  m_EditorClassIdentifier: Assembly-CSharp::WarriorAvatarConfig
+  baseBody: {fileID: 21300000, guid: c9b1216cb2222884bab88c9f1c6572f9, type: 3}
+  baseFace: {fileID: 21300000, guid: 3a2a72ef8bb4cf64e9dd390b58edf063, type: 3}
+  baseHead: {fileID: 21300000, guid: dcfc2f434e514a84ba3a65fa66bff365, type: 3}
+  baseLeftArm: {fileID: 21300000, guid: 594f30aab5248fd4393dcb28308515d1, type: 3}
+  baseRightArm: {fileID: 21300000, guid: b83f1f6b809702f4c878d8311c4321f9, type: 3}
+  baseLeftHand: {fileID: 21300000, guid: 2a5bdd9443d2dee429a32042f5721624, type: 3}
+  baseRightHand: {fileID: 21300000, guid: db427b28866be63469e538f9e869c35b, type: 3}
+  baseLeftLeg: {fileID: 21300000, guid: 970659a39f8096d4c81cc3cfb744d589, type: 3}
+  baseRightLeg: {fileID: 21300000, guid: 6a41e72a4dcdd5f48a7b12b6a42857d2, type: 3}
+  lightOutfit:
+    hat: {fileID: 21300000, guid: 0dbacca3ef260044fb9a7f62d60c3411, type: 3}
+    body: {fileID: 21300000, guid: a193809effa92524b9766f34cc812b1c, type: 3}
+    leftArm: {fileID: 21300000, guid: 7a449a851143d1f4aaa17b357f958e09, type: 3}
+    rightArm: {fileID: 21300000, guid: ab112a100ae2de74f8e9fa5298679806, type: 3}
+    leftHand: {fileID: 0}
+    rightHand: {fileID: 0}
+    leftShoe: {fileID: 21300000, guid: 9226b0b77d8689e4da3dbc6c2e979066, type: 3}
+    rightShoe: {fileID: 21300000, guid: f22cd2847afa5db45a3f05494feb953d, type: 3}
+    sword: {fileID: 21300000, guid: 78e4762dafbbdc343af98e54f110238e, type: 3}
+    shield: {fileID: 21300000, guid: a308191002c64cb4d8c263d93957388e, type: 3}
+  heavyOutfit:
+    hat: {fileID: 21300000, guid: b65c2585a85fcf24cb398c28812862af, type: 3}
+    body: {fileID: 21300000, guid: 3c96439cef290934b91671b79b0ea136, type: 3}
+    leftArm: {fileID: 21300000, guid: 0f2c48bdd2d677645a21f9297e524892, type: 3}
+    rightArm: {fileID: 21300000, guid: 3ac197da8100b524b9d78ee0d356e47f, type: 3}
+    leftHand: {fileID: 21300000, guid: 74d3f1b918f84b346b14e5372d0d4ac1, type: 3}
+    rightHand: {fileID: 21300000, guid: a722cdc54f9b7f849ac2b56fa8c8f8d3, type: 3}
+    leftShoe: {fileID: 21300000, guid: e9a440c9de2076f41a8573092f9619ec, type: 3}
+    rightShoe: {fileID: 21300000, guid: 2ed84aad69f692b4193b032552ee50fc, type: 3}
+    sword: {fileID: 21300000, guid: 5c984ed3fea86744193c4059850833f5, type: 3}
+    shield: {fileID: 21300000, guid: b1a8c05def9c77b4a9888b74c40f9e60, type: 3}

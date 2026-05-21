@@ -10,6 +10,10 @@ public class CombatUI : MonoBehaviour
     [Header("Player Sprite")]
     [SerializeField] Image playerSpriteImage;
 
+    [Header("Warrior Portraits")]
+    [SerializeField] WarriorPortrait playerPortrait;
+    [SerializeField] WarriorPortrait opponentPortrait;
+
     [Header("Mob List")]
     [SerializeField] Transform mobListContainer;
     [SerializeField] MobRowUI mobRowPrefab;
@@ -76,6 +80,9 @@ public class CombatUI : MonoBehaviour
         RefreshAutoFightLock();
         if (autoFightToggle != null)
             autoFightToggle.onValueChanged.AddListener(_ => { });
+
+        playerPortrait?.Refresh();
+        RefreshOpponentPortrait();
     }
 
     void OnEnable()
@@ -197,6 +204,25 @@ public class CombatUI : MonoBehaviour
         resultPanel.SetActive(true);
         if (countdownRow != null) countdownRow.SetActive(false);
 
+        // Duel mode: show honor result, skip XP/drops/auto-fight
+        if (DuelSession.IsActive)
+        {
+            int playerPower = HonorManager.CalculatePowerScore();
+            int honorDelta  = DuelManager.CalculateHonorDelta(won, playerPower, DuelSession.Opponent.powerScore);
+
+            if (won) HonorManager.Instance?.AddHonor(honorDelta);
+            else     HonorManager.Instance?.RemoveHonor(-honorDelta);
+
+            resultLabel.text = won ? "Victory!" : "Defeated!";
+            string sign = honorDelta >= 0 ? "+" : "";
+            if (xpResultLabel  != null) xpResultLabel.text = $"{sign}{honorDelta} Honor";
+            if (dropsLabel     != null) dropsLabel.text    = $"vs {DuelSession.Opponent.playerName}";
+            if (fightAgainBtn  != null) fightAgainBtn.gameObject.SetActive(false);
+            if (selectNewMobBtn != null) selectNewMobBtn.gameObject.SetActive(false);
+            if (!won) PlayerStats.Instance.RestoreFullHP();
+            return;
+        }
+
         resultLabel.text = won ? "Victory!" : "Defeated!";
 
         if (xpResultLabel != null)
@@ -240,6 +266,7 @@ public class CombatUI : MonoBehaviour
 
     void FightAgain()
     {
+        DuelSession.Clear();
         resultPanel.SetActive(false);
         CloseLogPanel();
         RestartFight();
@@ -260,6 +287,12 @@ public class CombatUI : MonoBehaviour
 
     void ReturnToVillage()
     {
+        if (DuelSession.IsActive)
+        {
+            DuelSession.Clear();
+            if (fightAgainBtn   != null) fightAgainBtn.gameObject.SetActive(true);
+            if (selectNewMobBtn != null) selectNewMobBtn.gameObject.SetActive(true);
+        }
         PlayerStats.Instance?.SaveLocal();
         Inventory.Instance?.Save();
         SceneManager.LoadScene(villageSceneName);
@@ -271,5 +304,19 @@ public class CombatUI : MonoBehaviour
         CloseLogPanel();
         if (selectionPanel != null) selectionPanel.SetActive(true);
         gameObject.SetActive(false);   // hide CombalPanel; CombatSelectionUI reactivates it on next fight
+    }
+
+    void RefreshOpponentPortrait()
+    {
+        if (opponentPortrait == null) return;
+        if (!DuelSession.IsActive) { opponentPortrait.gameObject.SetActive(false); return; }
+
+        opponentPortrait.gameObject.SetActive(true);
+        int ps = DuelSession.Opponent?.powerScore ?? 0;
+        ItemTier tier = ps >= 5000 ? ItemTier.RizeanSteel
+                      : ps >= 2000 ? ItemTier.Steel
+                      : ps >= 500  ? ItemTier.Iron
+                      : ItemTier.Wooden;
+        opponentPortrait.ShowOutfitTier(tier);
     }
 }

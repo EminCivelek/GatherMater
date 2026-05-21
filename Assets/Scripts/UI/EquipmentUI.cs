@@ -24,6 +24,9 @@ public class EquipmentUI : MonoBehaviour
     [SerializeField] private Transform        equipSlotsParent;
     [SerializeField] private EquipmentSlotUI  equipSlotPrefab;
 
+    [Header("Portrait")]
+    [SerializeField] private WarriorPortrait portrait;
+
     [Header("Stats")]
     [SerializeField] private TextMeshProUGUI attackText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
@@ -86,6 +89,7 @@ public class EquipmentUI : MonoBehaviour
         UpgradeAnvilUI.Instance?.Close();
         LeaderboardUI.Instance?.Close();
         DailyMissionBoardUI.Instance?.Close();
+        DuelUI.Instance?.Close();
 
         Initialize();
 

@@ -44,6 +44,7 @@ public class DailyMissionBoardUI : MonoBehaviour
         LeaderboardUI.Instance?.Close();
         EquipmentUI.Instance?.Close();
         ClassSelectionUI.Instance?.Close();
+        DuelUI.Instance?.Close();
         if (panel != null) panel.SetActive(true);
         RefreshRows();
         transform.SetAsLastSibling();

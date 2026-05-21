@@ -48,10 +48,19 @@ public class LeaderboardManager : MonoBehaviour
         double powerScore = CalculatePowerScore();
         double totalXp    = PlayerStats.Instance != null ? PlayerStats.Instance.totalXpFarmed : 0;
 
+        float hp  = PlayerStats.Instance?.EffectiveMaxHP       ?? 0f;
+        float atk = PlayerStats.Instance?.CombinedAttackDamage ?? 0f;
+        float spd = PlayerStats.Instance?.CombinedAttackSpeed  ?? 0f;
+        int   ps  = (int)powerScore;
+
         try
         {
-            await LeaderboardsService.Instance.AddPlayerScoreAsync(BOARD_POWER_SCORE, powerScore);
+            await LeaderboardsService.Instance.AddPlayerScoreAsync(
+                BOARD_POWER_SCORE, powerScore,
+                new Unity.Services.Leaderboards.AddPlayerScoreOptions
+                    { Metadata = new { ps, hp, atk, spd } });
             await LeaderboardsService.Instance.AddPlayerScoreAsync(BOARD_TOTAL_XP, totalXp);
+            HonorManager.Instance?.SubmitToLeaderboard();
             Debug.Log($"[Leaderboard] Submitted — PowerScore: {powerScore}  TotalXP: {totalXp}");
         }
         catch (Exception e)

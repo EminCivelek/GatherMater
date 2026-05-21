@@ -36,6 +36,18 @@ public class CombatSelectionUI : MonoBehaviour
 
     void Start()
     {
+        // Duel path: skip selection, build opponent mob at runtime and start immediately
+        if (DuelSession.IsActive)
+        {
+            var config = DuelSession.CreateMobConfig();
+            CombatSession.SelectedMob = config;
+            CombatSession.PullSize    = 1;
+            CombatManager.Instance.StartFight(config, 1);
+            selectionPanel.SetActive(false);
+            combatPanel.SetActive(true);
+            return;
+        }
+
         selectionPanel.SetActive(true);
         combatPanel.SetActive(false);
 

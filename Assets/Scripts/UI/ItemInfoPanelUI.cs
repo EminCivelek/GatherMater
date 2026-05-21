@@ -126,7 +126,8 @@ public class ItemInfoPanelUI : MonoBehaviour
 
         if (equipButton      != null) equipButton.gameObject.SetActive(!isPotion && !isScroll && !isSpeedUp);
         if (useButton        != null) useButton.gameObject.SetActive(isPotion || isSpeedUp);
-        if (disenchantButton != null) disenchantButton.gameObject.SetActive(isPotion);
+        bool canDisenchant = isPotion || isWeaponOrShield || isArmor;
+        if (disenchantButton != null) disenchantButton.gameObject.SetActive(canDisenchant);
         if (sellButton       != null) sellButton.gameObject.SetActive(!isPotion && !isSpeedUp);
 
         // Weapon stats
@@ -272,6 +273,25 @@ public class ItemInfoPanelUI : MonoBehaviour
             if (half <= 0) continue;
             inv.Add(req.resource, half);
             returned.Append($"{half}x {req.resource}  ");
+        }
+
+        // Give 1 upgrade scroll matching the item's tier
+        string scrollName = _item.data.itemTier switch
+        {
+            ItemTier.Wooden      => "Wooden Upgrade Scroll",
+            ItemTier.Iron        => "Iron Upgrade Scroll",
+            ItemTier.Steel       => "Steel Upgrade Scroll",
+            ItemTier.RizeanSteel => "Rizean Steel Upgrade Scroll",
+            _                    => null
+        };
+        if (scrollName != null)
+        {
+            var scrollData = ItemDatabase.Instance?.FindById(scrollName);
+            if (scrollData != null)
+            {
+                ItemInventory.Instance?.Add(new ItemInstance { itemDataId = scrollName, level = 1, data = scrollData });
+                returned.Append($"  1x {scrollName}");
+            }
         }
 
         ItemInventory.Instance?.Remove(_item);

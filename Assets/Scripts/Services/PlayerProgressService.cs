@@ -124,6 +124,9 @@ public class PlayerProgressService : MonoBehaviour
             data.equipInstanceIds = instanceIds;
         }
 
+        if (HonorManager.Instance != null)
+            data.honorPoints = HonorManager.Instance.HonorPoints;
+
         return JsonUtility.ToJson(data);
     }
 
@@ -168,6 +171,9 @@ public class PlayerProgressService : MonoBehaviour
             data.equipItemIds     ?? new System.Collections.Generic.List<string>(),
             data.equipItemLevels  ?? new System.Collections.Generic.List<int>(),
             data.equipInstanceIds);
+
+        if (data.honorPoints > 0)
+            HonorManager.Instance?.SetFromCloud(data.honorPoints);
     }
 
     // ── Data structure ────────────────────────────────────────────────────
@@ -195,5 +201,7 @@ public class PlayerProgressService : MonoBehaviour
         public List<string> equipItemIds     = new();
         public List<int>    equipItemLevels  = new();
         public List<string> equipInstanceIds = new();
+
+        public int honorPoints = 0;
     }
 }
