@@ -20,6 +20,9 @@ Assets/AssetBundleData/
 # Screenshots
 Assets/Screenshots/
 
+# Warrior Avatar source assets (large AI/EPS files)
+Assets/Warrior Avatar/
+
 # Recovery
 Assets/_Recovery/
 

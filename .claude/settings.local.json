@@ -27,7 +27,10 @@
       "Bash(xargs grep -l \"Canvas\\\\|CanvasScaler\")",
       "Bash(Get-ChildItem -Recurse -Filter \"*.cs\")",
       "Bash(xargs grep -l \"UnityEngine.Networking\\\\|System.Net\\\\|curl\\\\|JsonUtility\\\\|WWW\")",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\" -Recurse -File | Select-Object @{Name=\"RelativePath\";Expression={$_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\"\\), \"\"}}, Name, Extension | Format-Table -AutoSize)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\" -Recurse -File | Select-Object @{Name=\"RelativePath\";Expression={$_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\"\\), \"\"}}, Name, Extension | Format-Table -AutoSize)",
+      "Bash(git -C \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\" ls-files --error-unmatch \"Assets/Warrior Avatar\")",
+      "Bash(git -C \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\" rm -r --cached \"Assets/Warrior Avatar\")",
+      "Bash(git *)"
     ]
   }
 }
