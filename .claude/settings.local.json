@@ -30,7 +30,9 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\" -Recurse -File | Select-Object @{Name=\"RelativePath\";Expression={$_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\\\\Assets\\\\Warrior Avatar\"\\), \"\"}}, Name, Extension | Format-Table -AutoSize)",
       "Bash(git -C \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\" ls-files --error-unmatch \"Assets/Warrior Avatar\")",
       "Bash(git -C \"C:\\\\Users\\\\ecive\\\\Desktop\\\\GatherMater\\\\GatherMater\" rm -r --cached \"Assets/Warrior Avatar\")",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)"
     ]
   }
 }

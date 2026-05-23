@@ -231,9 +231,7 @@ public class DuelUI : MonoBehaviour
         if (string.IsNullOrEmpty(raw)) return new HonorMeta();
         try
         {
-            var result = JsonConvert.DeserializeObject<HonorMeta>(raw);
-            Debug.Log($"[DuelUI] Parsed meta — ps:{result?.ps} hp:{result?.hp} atk:{result?.atk} spd:{result?.spd}  (raw: {raw})");
-            return result ?? new HonorMeta();
+            return JsonConvert.DeserializeObject<HonorMeta>(raw) ?? new HonorMeta();
         }
         catch (Exception e)
         {

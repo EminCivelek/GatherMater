@@ -21,6 +21,12 @@ public class ItemData : ScriptableObject
     [Tooltip("One-handed weapons can be equipped in either the main hand or off-hand.")]
     public bool canEquipOffHand;
 
+    [Header("Enchantment Scroll")]
+    [Tooltip("Which on-hit effect this scroll applies. Only used when category = EnchantmentScroll.")]
+    public EnchantmentType enchantmentScrollType;
+    [Tooltip("On-hit amount granted per weapon level. One-handed weapons receive half.")]
+    public float enchantAmountPerLevel = 2f;
+
     [Header("Weapon Stats (scale per level)")]
     public float baseAttack;
     public float attackPerLevel;

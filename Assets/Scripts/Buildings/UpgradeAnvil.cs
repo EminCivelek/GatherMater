@@ -64,6 +64,73 @@ public class UpgradeAnvil : MonoBehaviour, IInteractable
         return result;
     }
 
+    // ── Enchantment ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Begins an enchantment job. Consumes the scroll and saves the job to EnchantJobTracker.
+    /// On failure, the weapon keeps its existing enchantment (no changes written until FinishEnchant succeeds).
+    /// </summary>
+    public bool StartEnchant(ItemInstance weapon, ItemInstance scroll, float enchantAmount, bool isEquipped)
+    {
+        if (weapon == null || scroll == null) return false;
+        if (EnchantJobTracker.IsActive) return false;
+        if (scroll.data?.enchantmentScrollType == EnchantmentType.None) return false;
+
+        if (isEquipped)
+        {
+            foreach (EquipSlot slot in Enum.GetValues(typeof(EquipSlot)))
+            {
+                if (Equipment.Instance?.GetEquipped(slot) == weapon)
+                {
+                    Equipment.Instance.Unequip(slot);
+                    break;
+                }
+            }
+        }
+
+        if (string.IsNullOrEmpty(weapon.instanceId))
+            weapon.instanceId = System.Guid.NewGuid().ToString("N");
+
+        ItemInventory.Instance?.RemoveOne(scroll);
+        EnchantJobTracker.Save(weapon.instanceId, weapon.level,
+            (int)scroll.data.enchantmentScrollType, enchantAmount, DateTime.UtcNow.Ticks);
+
+        Debug.Log($"[UpgradeAnvil] Enchanting {weapon.data?.itemName} → {scroll.data.enchantmentScrollType} (+{enchantAmount:F1})");
+        return true;
+    }
+
+    /// <summary>
+    /// Rolls success/fail. On success writes the new enchantment; on failure the weapon is unchanged.
+    /// Returns true on success.
+    /// </summary>
+    public bool FinishEnchant(ItemInstance weapon)
+    {
+        if (weapon == null) { EnchantJobTracker.Clear(); return false; }
+
+        int   weaponLevel   = EnchantJobTracker.WeaponLevel;
+        var   pendingType   = (EnchantmentType)EnchantJobTracker.PendingType;
+        float pendingAmount = EnchantJobTracker.PendingAmount;
+
+        float rate    = ItemData.GetUpgradeSuccessRate(weaponLevel);
+        bool  success = UnityEngine.Random.value < rate;
+
+        EnchantJobTracker.Clear();
+
+        if (success)
+        {
+            weapon.enchantmentType   = pendingType;
+            weapon.enchantmentAmount = pendingAmount;
+            ItemInventory.Instance?.NotifyItemUpgraded();
+            Debug.Log($"[UpgradeAnvil] Enchant SUCCESS: {weapon.data?.itemName} → {pendingType} (+{pendingAmount:F1})");
+        }
+        else
+        {
+            Debug.Log($"[UpgradeAnvil] Enchant FAILED: {weapon.data?.itemName} keeps old enchantment");
+        }
+
+        return success;
+    }
+
     /// <summary>
     /// Core outcome logic, also callable as a static fallback when no anvil instance exists.
     /// Failure zones: targetLevel ≤3 = safe, ≤15 = downgrade, >15 = destroy.

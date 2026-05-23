@@ -32,15 +32,12 @@ public static class DuelSession
             config.maxHP        = Opponent.maxHP;
             config.attackDamage = Opponent.attackDamage;
             config.attackSpeed  = Mathf.Clamp(Opponent.attackSpeed, 0.1f, 5f);
-            Debug.Log($"[DuelSession] Using real stats — HP:{config.maxHP} ATK:{config.attackDamage} SPD:{config.attackSpeed}");
         }
         else
         {
-            // Fallback when metadata is missing: mirror player stats for a fair fight
             config.maxHP        = PlayerStats.Instance?.EffectiveMaxHP       ?? 100f;
             config.attackDamage = PlayerStats.Instance?.CombinedAttackDamage ?? 10f;
             config.attackSpeed  = Mathf.Clamp(PlayerStats.Instance?.CombinedAttackSpeed ?? 1f, 0.1f, 5f);
-            Debug.LogWarning($"[DuelSession] No metadata for {Opponent?.playerName} — mirroring player stats as fallback");
         }
 
         return config;

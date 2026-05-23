@@ -74,7 +74,6 @@ public class HonorManager : MonoBehaviour
                 BOARD_ID, HonorPoints,
                 new AddPlayerScoreOptions { Metadata = new { ps, hp, atk, spd } }
             );
-            Debug.Log($"[Honor] Submitted — Honor: {HonorPoints}  PowerScore: {ps}");
         }
         catch (Exception e)
         {

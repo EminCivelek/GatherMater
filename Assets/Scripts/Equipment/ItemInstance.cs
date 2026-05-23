@@ -15,9 +15,13 @@ public class ItemInstance
 
     [NonSerialized] public ItemData data;
 
+    public EnchantmentType enchantmentType   = EnchantmentType.None;
+    public float           enchantmentAmount = 0f;
+
     public bool IsStackable => data?.category == ItemCategory.Scroll
                             || data?.category == ItemCategory.Potion
-                            || data?.category == ItemCategory.SpeedUp;
+                            || data?.category == ItemCategory.SpeedUp
+                            || data?.category == ItemCategory.EnchantmentScroll;
 
     // ── Stat getters ──────────────────────────────────────────────────────────────
     public float GetAttack()      => data?.GetAttack(level)      ?? 0f;

@@ -16,6 +16,14 @@ public class UpgradeAnvilUI : MonoBehaviour
     [SerializeField] private GameObject inventoryHUD;
     [SerializeField] private GameObject interactionButton;
 
+    [Header("Mode Tabs")]
+    [SerializeField] private Button upgradeTabButton;
+    [SerializeField] private Button enchantTabButton;
+    [SerializeField] private Image  upgradeTabBg;
+    [SerializeField] private Image  enchantTabBg;
+    [SerializeField] private TMP_Text itemColumnLabel;
+    [SerializeField] private TMP_Text actionButtonText;
+
     [Header("Item List (weapons / armor)")]
     [SerializeField] private Transform         itemListParent;
     [SerializeField] private UpgradeItemSlotUI itemSlotPrefab;
@@ -49,12 +57,20 @@ public class UpgradeAnvilUI : MonoBehaviour
     private readonly List<UpgradeItemSlotUI> _itemSlots   = new();
     private readonly List<UpgradeItemSlotUI> _scrollSlots = new();
     private IsometricPlayerController        _player;
-    private Coroutine                        _upgradeCoroutine;
-    private bool                             _isUpgrading;
-    private ItemInstance                     _upgradingItem;
     private bool                             _skipUnequipWarning;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────────
+    // ── Upgrade state ─────────────────────────────────────────────────────────
+    private Coroutine    _upgradeCoroutine;
+    private bool         _isUpgrading;
+    private ItemInstance _upgradingItem;
+
+    // ── Enchant state ─────────────────────────────────────────────────────────
+    private Coroutine    _enchantCoroutine;
+    private bool         _isEnchanting;
+    private ItemInstance _enchantingItem;
+    private bool         _enchantMode;
+
+    // ── Unity lifecycle ───────────────────────────────────────────────────────
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -71,10 +87,13 @@ public class UpgradeAnvilUI : MonoBehaviour
     private void Start()
     {
         closeButton.onClick.AddListener(Close);
-        upgradeButton.onClick.AddListener(OnUpgrade);
+        upgradeButton.onClick.AddListener(OnAction);
         if (upgradeSpeedUpButton != null) upgradeSpeedUpButton.onClick.AddListener(OnSpeedUpClicked);
+        if (upgradeTabButton     != null) upgradeTabButton.onClick.AddListener(() => SetMode(false));
+        if (enchantTabButton     != null) enchantTabButton.onClick.AddListener(() => SetMode(true));
         _player = FindAnyObjectByType<IsometricPlayerController>();
         ResumeSavedUpgrade();
+        ResumeSavedEnchant();
     }
 
     private void Update()
@@ -82,7 +101,7 @@ public class UpgradeAnvilUI : MonoBehaviour
         if (_anvil != null && _player != null && _player.IsMoving) Close();
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────────
+    // ── Public API ────────────────────────────────────────────────────────────
     public void Open(UpgradeAnvil anvil)
     {
         EquipmentUI.Instance?.Close();
@@ -108,8 +127,10 @@ public class UpgradeAnvilUI : MonoBehaviour
         if (selectedScrollText != null) selectedScrollText.text = "Scroll: —";
         if (scrollColumn       != null) scrollColumn.SetActive(false);
 
-        if (upgradeFooter != null) upgradeFooter.SetActive(_isUpgrading);
+        bool anyJobActive = _isUpgrading || _isEnchanting;
+        if (upgradeFooter != null) upgradeFooter.SetActive(anyJobActive);
 
+        RefreshTabVisuals();
         BuildItemList();
         RefreshUpgradeButton();
     }
@@ -136,20 +157,53 @@ public class UpgradeAnvilUI : MonoBehaviour
         _overlay.SetActive(false);
     }
 
-    // ── List builders ─────────────────────────────────────────────────────────────
+    // ── Mode ──────────────────────────────────────────────────────────────────
+    private void SetMode(bool enchant)
+    {
+        _enchantMode            = enchant;
+        _selectedItem           = null;
+        _selectedItemIsEquipped = false;
+        _selectedScroll         = null;
+        _requiredScrollName     = null;
+
+        if (selectedItemText   != null) selectedItemText.text   = "Item: —";
+        if (selectedScrollText != null) selectedScrollText.text = "Scroll: —";
+        if (scrollColumn       != null) scrollColumn.SetActive(false);
+
+        RefreshTabVisuals();
+        BuildItemList();
+        RefreshUpgradeButton();
+    }
+
+    private void RefreshTabVisuals()
+    {
+        var activeColor   = new Color(0.18f, 0.55f, 0.18f, 1f);
+        var inactiveColor = new Color(0.12f, 0.12f, 0.20f, 1f);
+
+        if (upgradeTabBg != null) upgradeTabBg.color = _enchantMode ? inactiveColor : activeColor;
+        if (enchantTabBg != null) enchantTabBg.color  = _enchantMode ? activeColor : inactiveColor;
+
+        if (itemColumnLabel != null)
+            itemColumnLabel.text = _enchantMode ? "Select Weapon to Enchant" : "Select Item to Upgrade";
+
+        if (actionButtonText != null)
+            actionButtonText.text = _enchantMode ? "Enchant" : "Upgrade";
+    }
+
+    // ── List builders ─────────────────────────────────────────────────────────
     private void BuildItemList()
     {
         foreach (var s in _itemSlots) Destroy(s.gameObject);
         _itemSlots.Clear();
 
-        var entries = new System.Collections.Generic.List<(ItemInstance item, bool isEquipped, bool isMax)>();
+        var entries = new List<(ItemInstance item, bool isEquipped, bool isMax)>();
 
         if (ItemInventory.Instance != null)
         {
             foreach (var item in ItemInventory.Instance.Items)
             {
-                if (!IsEquipmentCategory(item)) continue;
-                entries.Add((item, false, IsAtMaxLevel(item)));
+                if (_enchantMode ? !IsWeapon(item) : !IsEquipmentCategory(item)) continue;
+                entries.Add((item, false, !_enchantMode && IsAtMaxLevel(item)));
             }
         }
 
@@ -158,19 +212,19 @@ public class UpgradeAnvilUI : MonoBehaviour
             foreach (EquipSlot equipSlot in Enum.GetValues(typeof(EquipSlot)))
             {
                 var item = Equipment.Instance.GetEquipped(equipSlot);
-                if (item == null || !IsEquipmentCategory(item)) continue;
-                entries.Add((item, true, IsAtMaxLevel(item)));
+                if (item == null) continue;
+                if (_enchantMode ? !IsWeapon(item) : !IsEquipmentCategory(item)) continue;
+                entries.Add((item, true, !_enchantMode && IsAtMaxLevel(item)));
             }
         }
 
-        // Non-max items first, max-level items at the bottom
         entries.Sort((a, b) => a.isMax.CompareTo(b.isMax));
 
         foreach (var (item, isEquipped, isMax) in entries)
         {
             var slot = Instantiate(itemSlotPrefab, itemListParent);
-            ItemInstance captured    = item;
-            bool         capturedEq  = isEquipped;
+            ItemInstance captured   = item;
+            bool         capturedEq = isEquipped;
             slot.Init(item, isEquipped, isMax ? null : () => SelectItem(captured, capturedEq), isMax);
             _itemSlots.Add(slot);
         }
@@ -185,8 +239,16 @@ public class UpgradeAnvilUI : MonoBehaviour
         {
             foreach (var item in ItemInventory.Instance.Items)
             {
-                if (item.data?.category != ItemCategory.Scroll) continue;
-                if (item.data.itemName  != _requiredScrollName)  continue;
+                if (_enchantMode)
+                {
+                    if (item.data?.category != ItemCategory.EnchantmentScroll) continue;
+                }
+                else
+                {
+                    if (item.data?.category != ItemCategory.Scroll) continue;
+                    if (item.data.itemName  != _requiredScrollName)  continue;
+                }
+
                 var slot = Instantiate(scrollSlotPrefab, scrollListParent);
                 ItemInstance captured = item;
                 slot.Init(item, false, () => SelectScroll(captured));
@@ -200,19 +262,19 @@ public class UpgradeAnvilUI : MonoBehaviour
         {
             noScrollText.gameObject.SetActive(!hasScrolls);
             if (!hasScrolls)
-                noScrollText.text = _requiredScrollName != null
-                    ? $"You don't have\n{_requiredScrollName}"
-                    : "No matching upgrade scroll";
+                noScrollText.text = _enchantMode
+                    ? "No enchantment scrolls\nin inventory"
+                    : (_requiredScrollName != null ? $"You don't have\n{_requiredScrollName}" : "No matching upgrade scroll");
         }
     }
 
-    // ── Selection ─────────────────────────────────────────────────────────────────
+    // ── Selection ─────────────────────────────────────────────────────────────
     private void SelectItem(ItemInstance item, bool isEquipped)
     {
         _selectedItem           = item;
         _selectedItemIsEquipped = isEquipped;
         _selectedScroll         = null;
-        _requiredScrollName     = GetRequiredScrollName(item);
+        _requiredScrollName     = _enchantMode ? null : GetRequiredScrollName(item);
 
         foreach (var s in _itemSlots)
             s.SetHighlight(s.BoundItem == item);
@@ -244,9 +306,33 @@ public class UpgradeAnvilUI : MonoBehaviour
             return;
         }
 
+        if (_enchantMode)
+        {
+            if (selectedItemText != null)
+                selectedItemText.text = $"Weapon: {_selectedItem.data?.itemName}  Lv{_selectedItem.level}";
+
+            if (selectedScrollText != null)
+            {
+                if (_selectedScroll != null)
+                {
+                    float amount  = ComputeEnchantAmount(_selectedItem, _selectedScroll);
+                    float rate    = ItemData.GetUpgradeSuccessRate(_selectedItem.level);
+                    string typeLbl = _selectedScroll.data?.enchantmentScrollType == EnchantmentType.OnHitBonusDamage
+                        ? "On-Hit Dmg" : "On-Hit HP";
+                    selectedScrollText.text = $"Effect: {typeLbl} +{amount:F1}  ·  {Mathf.RoundToInt(rate * 100)}% success  ·  Fail = keep old";
+                }
+                else
+                {
+                    selectedScrollText.text = "Scroll: —";
+                }
+            }
+            return;
+        }
+
+        // Upgrade mode
         int   goldNeeded  = 50 * _selectedItem.level;
         int   targetLevel = _selectedItem.level + 1;
-        float rate        = ItemData.GetUpgradeSuccessRate(targetLevel);
+        float upgradeRate = ItemData.GetUpgradeSuccessRate(targetLevel);
 
         if (selectedItemText != null)
             selectedItemText.text = $"Item: {_selectedItem.data?.itemName}  Lv{_selectedItem.level} → Lv{targetLevel}  (Cost: {goldNeeded} Gold)";
@@ -256,7 +342,7 @@ public class UpgradeAnvilUI : MonoBehaviour
             if (_selectedScroll != null)
             {
                 string risk = targetLevel <= 3 ? "Safe fail" : targetLevel <= 15 ? "Downgrade on fail" : "Destroy on fail";
-                selectedScrollText.text = $"Scroll: {_selectedScroll.data?.itemName}  ·  {Mathf.RoundToInt(rate * 100)}% success  ·  {risk}";
+                selectedScrollText.text = $"Scroll: {_selectedScroll.data?.itemName}  ·  {Mathf.RoundToInt(upgradeRate * 100)}% success  ·  {risk}";
             }
             else
             {
@@ -265,7 +351,14 @@ public class UpgradeAnvilUI : MonoBehaviour
         }
     }
 
-    // ── Upgrade ───────────────────────────────────────────────────────────────────
+    // ── Action dispatch ───────────────────────────────────────────────────────
+    private void OnAction()
+    {
+        if (_enchantMode) BeginEnchant();
+        else              OnUpgrade();
+    }
+
+    // ── Upgrade ───────────────────────────────────────────────────────────────
     private void OnUpgrade()
     {
         if (_anvil == null || _selectedItem == null || _selectedScroll == null) return;
@@ -309,7 +402,7 @@ public class UpgradeAnvilUI : MonoBehaviour
         if (_isUpgrading) return;
 
         int goldCost = 50 * _selectedItem.level;
-        if (!CanAffordUpgradeGold(_selectedItem))
+        if (!CanAffordGold(_selectedItem))
         {
             ConfirmDialogUI.Instance?.ShowMessage("Not Enough Gold", $"You need {goldCost} Gold to upgrade this item.", "OK");
             return;
@@ -319,15 +412,10 @@ public class UpgradeAnvilUI : MonoBehaviour
 
         Inventory.Instance.Spend(ResourceType.Gold, goldCost);
 
-        _upgradingItem = _selectedItem;
+        _upgradingItem    = _selectedItem;
         _upgradeCoroutine = StartCoroutine(UpgradeCoroutine(_upgradingItem));
 
-        _selectedItem   = null;
-        _selectedScroll = null;
-        if (selectedItemText   != null) selectedItemText.text   = "Item: —";
-        if (selectedScrollText != null) selectedScrollText.text = "Scroll: —";
-        if (scrollColumn       != null) scrollColumn.SetActive(false);
-
+        ClearSelection();
         BuildItemList();
         RefreshUpgradeButton();
     }
@@ -336,11 +424,11 @@ public class UpgradeAnvilUI : MonoBehaviour
     {
         _isUpgrading = true;
 
-        int   _tgtLvl = item.level + 1;
-        float _rate   = ItemData.GetUpgradeSuccessRate(_tgtLvl);
+        int   tgtLvl = item.level + 1;
+        float rate   = ItemData.GetUpgradeSuccessRate(tgtLvl);
         if (upgradeFooter         != null) upgradeFooter.SetActive(true);
-        if (upgradeFooterIcon     != null) upgradeFooterIcon.sprite     = item.data?.icon;
-        if (upgradeFooterNameText != null) upgradeFooterNameText.text   = $"{item.data?.itemName}  Lv{item.level} → Lv{_tgtLvl}  ({Mathf.RoundToInt(_rate * 100)}% success)";
+        if (upgradeFooterIcon     != null) upgradeFooterIcon.sprite   = item.data?.icon;
+        if (upgradeFooterNameText != null) upgradeFooterNameText.text = $"{item.data?.itemName}  Lv{item.level} → Lv{tgtLvl}  ({Mathf.RoundToInt(rate * 100)}% success)";
         if (upgradeProgressBar    != null) { upgradeProgressBar.minValue = 0f; upgradeProgressBar.maxValue = 1f; }
 
         while (!UpgradeJobTracker.IsComplete)
@@ -373,7 +461,7 @@ public class UpgradeAnvilUI : MonoBehaviour
         _upgradeCoroutine = null;
         _upgradingItem    = null;
 
-        if (upgradeFooter != null) upgradeFooter.SetActive(false);
+        if (upgradeFooter != null) upgradeFooter.SetActive(_isEnchanting);
 
         ShowUpgradeResult(result, item);
 
@@ -401,7 +489,105 @@ public class UpgradeAnvilUI : MonoBehaviour
         }
     }
 
-    // ── Persistence resume ────────────────────────────────────────────────────────
+    // ── Enchant ───────────────────────────────────────────────────────────────
+    private void BeginEnchant()
+    {
+        if (_anvil == null || _selectedItem == null || _selectedScroll == null) return;
+        if (_isEnchanting || _isUpgrading) return;
+
+        int goldCost = 50 * _selectedItem.level;
+        if (!CanAffordGold(_selectedItem))
+        {
+            ConfirmDialogUI.Instance?.ShowMessage("Not Enough Gold", $"You need {goldCost} Gold to enchant this item.", "OK");
+            return;
+        }
+
+        if (_selectedItemIsEquipped && ItemInventory.Instance != null && ItemInventory.Instance.IsFull)
+        {
+            ConfirmDialogUI.Instance?.ShowMessage("Inventory Full", "Free up a slot so the item can be unequipped.", "OK");
+            return;
+        }
+
+        float enchantAmount = ComputeEnchantAmount(_selectedItem, _selectedScroll);
+
+        if (!_anvil.StartEnchant(_selectedItem, _selectedScroll, enchantAmount, _selectedItemIsEquipped)) return;
+
+        Inventory.Instance.Spend(ResourceType.Gold, goldCost);
+
+        _enchantingItem   = _selectedItem;
+        _enchantCoroutine = StartCoroutine(EnchantCoroutine(_enchantingItem));
+
+        ClearSelection();
+        BuildItemList();
+        RefreshUpgradeButton();
+    }
+
+    private IEnumerator EnchantCoroutine(ItemInstance item)
+    {
+        _isEnchanting = true;
+
+        float rate = ItemData.GetUpgradeSuccessRate(EnchantJobTracker.WeaponLevel);
+        if (upgradeFooter         != null) upgradeFooter.SetActive(true);
+        if (upgradeFooterIcon     != null) upgradeFooterIcon.sprite   = item.data?.icon;
+        if (upgradeFooterNameText != null) upgradeFooterNameText.text = $"Enchanting {item.data?.itemName}  ({Mathf.RoundToInt(rate * 100)}% success)";
+        if (upgradeProgressBar    != null) { upgradeProgressBar.minValue = 0f; upgradeProgressBar.maxValue = 1f; }
+
+        while (!EnchantJobTracker.IsComplete)
+        {
+            if (upgradeProgressBar != null) upgradeProgressBar.value = EnchantJobTracker.Progress;
+            if (upgradeTimeText    != null) upgradeTimeText.text     = FormatTime(EnchantJobTracker.Remaining);
+            yield return null;
+        }
+
+        CompleteEnchant(item);
+    }
+
+    private void CompleteEnchant(ItemInstance item)
+    {
+        bool success;
+        if (_anvil != null)
+        {
+            success = _anvil.FinishEnchant(item);
+        }
+        else
+        {
+            int   weaponLevel   = EnchantJobTracker.WeaponLevel;
+            var   pendingType   = (EnchantmentType)EnchantJobTracker.PendingType;
+            float pendingAmount = EnchantJobTracker.PendingAmount;
+            float rate          = ItemData.GetUpgradeSuccessRate(weaponLevel);
+            success = UnityEngine.Random.value < rate;
+            EnchantJobTracker.Clear();
+            if (success)
+            {
+                item.enchantmentType   = pendingType;
+                item.enchantmentAmount = pendingAmount;
+                ItemInventory.Instance?.NotifyItemUpgraded();
+            }
+        }
+
+        _isEnchanting    = false;
+        _enchantCoroutine = null;
+        _enchantingItem  = null;
+
+        if (upgradeFooter != null) upgradeFooter.SetActive(_isUpgrading);
+
+        if (success)
+        {
+            string typeLbl = item.enchantmentType == EnchantmentType.OnHitBonusDamage ? "On-Hit Bonus Damage" : "On-Hit HP Recovery";
+            ConfirmDialogUI.Instance?.ShowMessage("Enchant Successful!",
+                $"{item?.data?.itemName ?? "Weapon"} now has\n{typeLbl} (+{item.enchantmentAmount:F1})!", "OK");
+        }
+        else
+        {
+            ConfirmDialogUI.Instance?.ShowMessage("Enchant Failed",
+                $"The enchantment failed.\n{item?.data?.itemName ?? "Weapon"} keeps its previous enchantment.", "OK");
+        }
+
+        if (panel.activeSelf) BuildItemList();
+        RefreshUpgradeButton();
+    }
+
+    // ── Persistence resume ────────────────────────────────────────────────────
     private void ResumeSavedUpgrade()
     {
         if (!UpgradeJobTracker.IsActive) return;
@@ -410,9 +596,7 @@ public class UpgradeAnvilUI : MonoBehaviour
         if (item == null) { UpgradeJobTracker.Clear(); return; }
 
         if (UpgradeJobTracker.IsComplete)
-        {
             CompleteUpgrade(item);
-        }
         else
         {
             _upgradingItem    = item;
@@ -421,27 +605,66 @@ public class UpgradeAnvilUI : MonoBehaviour
         }
     }
 
+    private void ResumeSavedEnchant()
+    {
+        if (!EnchantJobTracker.IsActive) return;
+
+        string instanceId = EnchantJobTracker.InstanceId;
+        var item = ItemInventory.Instance?.Items
+            .FirstOrDefault(i => !string.IsNullOrEmpty(instanceId) && i.instanceId == instanceId);
+
+        if (item == null) { EnchantJobTracker.Clear(); return; }
+
+        if (EnchantJobTracker.IsComplete)
+            CompleteEnchant(item);
+        else
+        {
+            _enchantingItem   = item;
+            _isEnchanting     = true;
+            _enchantCoroutine = StartCoroutine(EnchantCoroutine(item));
+        }
+    }
+
     private ItemInstance FindUpgradingItem()
     {
-        string instanceId   = UpgradeJobTracker.UpgradingInstance;
-        string dataId       = UpgradeJobTracker.ItemDataId;
+        string instanceId    = UpgradeJobTracker.UpgradingInstance;
+        string dataId        = UpgradeJobTracker.ItemDataId;
         int    expectedLevel = UpgradeJobTracker.TargetLevel - 1;
 
-        // Prefer exact instanceId match; fall back to itemDataId+level for legacy saves
         return ItemInventory.Instance?.Items
             .FirstOrDefault(i => !string.IsNullOrEmpty(instanceId) && i.instanceId == instanceId)
             ?? ItemInventory.Instance?.Items
             .FirstOrDefault(i => i.itemDataId == dataId && i.level == expectedLevel);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    private void ClearSelection()
+    {
+        _selectedItem   = null;
+        _selectedScroll = null;
+        if (selectedItemText   != null) selectedItemText.text   = "Item: —";
+        if (selectedScrollText != null) selectedScrollText.text = "Scroll: —";
+        if (scrollColumn       != null) scrollColumn.SetActive(false);
+    }
+
     private void RefreshUpgradeButton()
     {
         if (upgradeButton == null) return;
-        upgradeButton.interactable = !_isUpgrading && _selectedItem != null && _selectedScroll != null;
+        bool itemBusy = _selectedItem != null && (
+            UpgradeJobTracker.IsBeingUpgraded(_selectedItem.instanceId) ||
+            EnchantJobTracker.IsBeingEnchanted(_selectedItem.instanceId));
+        upgradeButton.interactable = !_isUpgrading && !_isEnchanting
+            && _selectedItem != null && _selectedScroll != null && !itemBusy;
     }
 
-    private static bool CanAffordUpgradeGold(ItemInstance item)
+    private static float ComputeEnchantAmount(ItemInstance weapon, ItemInstance scroll)
+    {
+        if (weapon?.data == null || scroll?.data == null) return 0f;
+        float baseAmount = weapon.level * scroll.data.enchantAmountPerLevel;
+        return weapon.data.isTwoHanded ? baseAmount : baseAmount * 0.5f;
+    }
+
+    private static bool CanAffordGold(ItemInstance item)
     {
         int cost = 50 * item.level;
         return Inventory.Instance != null && Inventory.Instance.Has(ResourceType.Gold, cost);
@@ -468,16 +691,30 @@ public class UpgradeAnvilUI : MonoBehaviour
                item.data.category == ItemCategory.Armor;
     }
 
+    private static bool IsWeapon(ItemInstance item) =>
+        item?.data?.category == ItemCategory.Weapon;
+
     private static bool IsAtMaxLevel(ItemInstance item) =>
         item?.data != null && item.level >= item.data.MaxUpgradeLevel;
 
     private void OnSpeedUpClicked()
     {
-        SpeedUpPanelUI.Instance?.Open(item =>
+        if (_isEnchanting)
         {
-            int minutes = item.data?.speedUpMinutes > 0 ? item.data.speedUpMinutes : 1;
-            UpgradeJobTracker.ApplySpeedUp(minutes);
-        });
+            SpeedUpPanelUI.Instance?.Open(item =>
+            {
+                int minutes = item.data?.speedUpMinutes > 0 ? item.data.speedUpMinutes : 1;
+                EnchantJobTracker.ApplySpeedUp(minutes);
+            });
+        }
+        else
+        {
+            SpeedUpPanelUI.Instance?.Open(item =>
+            {
+                int minutes = item.data?.speedUpMinutes > 0 ? item.data.speedUpMinutes : 1;
+                UpgradeJobTracker.ApplySpeedUp(minutes);
+            });
+        }
     }
 
     private static string FormatTime(float seconds)

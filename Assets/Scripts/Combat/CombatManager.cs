@@ -72,6 +72,9 @@ public class CombatManager : MonoBehaviour
                     target.CurrentHP = Mathf.Max(0f, target.CurrentHP - dmg);
                     OnCombatLog?.Invoke($"You hit {target.Config.mobName} for {dmg:F0} dmg.");
 
+                    ApplyOnHitEnchantment(Equipment.Instance?.GetEquipped(EquipSlot.MainHand), target);
+                    ApplyOnHitEnchantment(Equipment.Instance?.GetEquipped(EquipSlot.OffHand),  target);
+
                     if (!target.IsAlive)
                     {
                         int xp = target.Config.xpReward;
@@ -207,6 +210,25 @@ public class CombatManager : MonoBehaviour
     public List<(ResourceType type, int amount)>  LastDrops      { get; private set; } = new();
     public List<(ScrollType type, int amount)>    LastScrollDrops { get; private set; } = new();
     public List<(string itemName, int amount)>    LastItemDrops   { get; private set; } = new();
+
+    void ApplyOnHitEnchantment(ItemInstance weapon, MobInstance target)
+    {
+        if (weapon == null || weapon.enchantmentType == EnchantmentType.None || weapon.enchantmentAmount <= 0f) return;
+
+        if (weapon.enchantmentType == EnchantmentType.OnHitBonusDamage)
+        {
+            if (!target.IsAlive) return;
+            float extra = weapon.enchantmentAmount;
+            target.CurrentHP = Mathf.Max(0f, target.CurrentHP - extra);
+            OnCombatLog?.Invoke($"  On-hit: +{extra:F0} bonus dmg.");
+        }
+        else if (weapon.enchantmentType == EnchantmentType.OnHitHPRecovery)
+        {
+            float heal = weapon.enchantmentAmount;
+            PlayerStats.Instance.HealHP(heal);
+            OnCombatLog?.Invoke($"  On-hit: +{heal:F0} HP recovered.");
+        }
+    }
 
     public bool IsFighting => _fightActive;
     public bool PlayerWon  => _fightActive == false && PlayerStats.Instance.IsAlive;

@@ -30,7 +30,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Class")]
     public PlayerClass selectedClass = PlayerClass.None;
 
-    public const int MaxLevel = 60;
+    public const int MaxLevel = 30;
 
     public event Action OnStatsChanged;
     public event Action OnClassSelected;
@@ -161,6 +161,12 @@ public class PlayerStats : MonoBehaviour
         currentHP = Mathf.Max(0f, currentHP - reduced);
         OnStatsChanged?.Invoke();
         return reduced;
+    }
+
+    public void HealHP(float amount)
+    {
+        currentHP = Mathf.Min(currentHP + amount, EffectiveMaxHP);
+        OnStatsChanged?.Invoke();
     }
 
     public void LoseXPOnDeath()

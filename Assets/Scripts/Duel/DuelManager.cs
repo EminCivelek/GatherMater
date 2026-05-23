@@ -20,8 +20,7 @@ public static class DuelManager
             return -Mathf.RoundToInt(Mathf.Lerp(10f, 30f, Mathf.Clamp01(1f - (strengthRatio - 0.5f) * 2f)));
     }
 
-    // Set true to bypass the daily cooldown during testing
-    public static bool TestingMode = true;
+    public static bool TestingMode = false;
 
     // ── Daily cooldown ────────────────────────────────────────────────────
     public static List<string> GetUsedIds()
